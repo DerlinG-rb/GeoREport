@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">GeoREport</string>
+    <string name="app_tagline">Reporte Ciudadano de Incidentes</string>
+
+    <!-- Login Screen Strings -->
+    <string name="login_title">Bienvenido</string>
+    <string name="login_subtitle">Inicia sesión para reportar y dar seguimiento a incidentes en tu comunidad</string>
+    <string name="email_label">Correo electrónico</string>
+    <string name="email_hint">correo@ejemplo.com</string>
+    <string name="password_label">Contraseña</string>
+    <string name="password_hint">Ingresa tu contraseña</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="btn_login">Iniciar Sesión</string>
+    <string name="no_account_question">¿No tienes una cuenta?</string>
+    <string name="action_register">Regístrate aquí</string>
+
+    <!-- Register Screen Strings -->
+    <string name="register_title">Crear Cuenta</string>
+    <string name="register_subtitle">Únete a la red ciudadana para reportar incidentes en tiempo real</string>
+    <string name="full_name_label">Nombre completo</string>
+    <string name="full_name_hint">Ej. Carlos Mendoza</string>
+    <string name="phone_label">Teléfono móvil</string>
+    <string name="phone_hint">Ej. 0991234567</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+    <string name="confirm_password_hint">Vuelve a escribir tu contraseña</string>
+    <string name="btn_register">Registrarse</string>
+    <string name="already_have_account_question">¿Ya tienes una cuenta?</string>
+    <string name="action_login">Inicia sesión</string>
+
+    <!-- Visual feedback messages (Simulation) -->
+    <string name="msg_login_success">Acceso concedido (Simulación visual)</string>
+    <string name="msg_register_success">¡Cuenta creada con éxito! (Simulación visual)</string>
+    <string name="msg_empty_fields">Por favor ingresa todos los campos para continuar</string>
+    <string name="msg_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="msg_forgot_password_info">Función de recuperación en desarrollo</string>
 </resources>

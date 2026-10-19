@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <!-- Brand / Emergency Reporting Palette -->
+    <color name="primary_blue">#1565C0</color>
+    <color name="primary_dark">#0D47A1</color>
+    <color name="primary_light">#E3F2FD</color>
+    <color name="accent_orange">#FF6D00</color>
+    <color name="accent_red">#D32F2F</color>
+
+    <!-- Neutral Palette -->
+    <color name="bg_light">#F5F7FB</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="text_primary">#1A202C</color>
+    <color name="text_secondary">#718096</color>
+    <color name="stroke_light">#E2E8F0</color>
+
+    <!-- Standard Colors -->
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+
+    <!-- Theme Compatibility -->
+    <color name="purple_200">#90CAF9</color>
+    <color name="purple_500">#1565C0</color>
+    <color name="purple_700">#0D47A1</color>
+    <color name="teal_200">#80DEEA</color>
+    <color name="teal_700">#00838F</color>
 </resources>
