@@ -18,6 +18,11 @@
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 
+    <!-- Functional Colors -->
+    <color name="success_green">#2E7D32</color>
+    <color name="success_light">#E8F5E9</color>
+    <color name="photo_border_dashed">#90CAF9</color>
+
     <!-- Theme Compatibility -->
     <color name="purple_200">#90CAF9</color>
     <color name="purple_500">#1565C0</color>

@@ -27,6 +27,72 @@
     <string name="already_have_account_question">¿Ya tienes una cuenta?</string>
     <string name="action_login">Inicia sesión</string>
 
+    <!-- Home / Incident Report Screen Strings -->
+    <string name="home_title">GeoREport</string>
+    <string name="home_header_welcome">Bienvenido Ciudadano</string>
+    <string name="home_header_subtitle">¿Qué incidencia deseas reportar hoy?</string>
+    <string name="badge_status_active">Servicio Activo</string>
+    <string name="section_photo_title">Evidencia Fotográfica</string>
+    <string name="section_photo_subtitle">Toma una foto en el lugar o carga una imagen desde tu dispositivo</string>
+    <string name="photo_prompt_title">Adjuntar Foto del Incidente</string>
+    <string name="photo_prompt_desc">Selecciona si prefieres tomar una foto directa o subir un archivo</string>
+    <string name="btn_take_photo">Tomar Foto</string>
+    <string name="btn_upload_file">Cargar Archivo</string>
+    <string name="btn_change_photo">Cambiar Foto</string>
+    <string name="btn_delete_photo">Quitar</string>
+    <string name="photo_status_attached">Fotografía adjuntada con éxito</string>
+
+    <string name="section_category_title">Tipo de Incidencia</string>
+    <string name="section_category_subtitle">Clasifica el problema para dirigirlo al departamento adecuado</string>
+    <string name="category_dropdown_label">Selecciona el tipo de incidencia *</string>
+    <string name="category_pothole">Bache / Vía en mal estado</string>
+    <string name="category_lighting">Falla de alumbrado público</string>
+    <string name="category_garbage">Basura / Escombros acumulados</string>
+    <string name="category_water_leak">Fuga de agua / Alcantarillado</string>
+    <string name="category_fallen_tree">Árbol / Rama con riesgo de caída</string>
+    <string name="category_traffic_sign">Semáforo o señalización averiada</string>
+    <string name="category_electrical_hazard">Cableado / Poste con riesgo eléctrico</string>
+    <string name="category_other">Otro tipo de incidencia urbana</string>
+
+    <string name="chip_pothole">Baches</string>
+    <string name="chip_lighting">Alumbrado</string>
+    <string name="chip_garbage">Basura</string>
+    <string name="chip_water">Fuga de Agua</string>
+    <string name="chip_tree">Árbol Caído</string>
+    <string name="chip_traffic">Semáforo</string>
+    <string name="chip_other">Otro</string>
+
+    <string name="section_details_title">Detalles y Ubicación</string>
+    <string name="section_details_subtitle">Visualiza el mapa en tiempo real o selecciona la ubicación del incidente</string>
+    <string name="description_label">Descripción de la incidencia (Opcional)</string>
+    <string name="description_hint">Detalla brevemente la situación o puntos de referencia</string>
+    <string name="location_label">Dirección o referencia del incidente</string>
+    <string name="location_hint">Dirección aproximada detectada en el mapa</string>
+    <string name="btn_get_location">Mi Ubicación GPS</string>
+    <string name="btn_submit_report">Enviar Reporte de Incidencia</string>
+
+    <!-- OpenStreetMap & Real GPS strings -->
+    <string name="map_instruction">Toca en el mapa para mover la ubicación del incidente</string>
+    <string name="map_incident_marker_title">Lugar del Incidente</string>
+    <string name="map_incident_marker_snippet">Arrastra o toca el mapa para reposicionar</string>
+    <string name="gps_status_searching">Obteniendo ubicación GPS precisa...</string>
+    <string name="gps_status_acquired">GPS fijado con éxito</string>
+    <string name="gps_permission_required">Se requiere permiso de ubicación para mostrar tu posición real</string>
+    <string name="gps_disabled_prompt">Por favor activa el GPS de tu dispositivo para detectar tu ubicación exacta</string>
+    <string name="coordinates_default">Toca el mapa o presiona \'Mi Ubicación GPS\'</string>
+
+    <!-- Feedback messages -->
+    <string name="msg_photo_required">Por favor toma o sube una foto de la incidencia antes de continuar</string>
+    <string name="msg_category_required">Por favor selecciona el tipo de incidencia</string>
+    <string name="msg_report_success_title">¡Incidencia Reportada!</string>
+    <string name="msg_report_success_desc">Tu reporte ha sido registrado exitosamente con el código #GEO-%1$05d.\n\nEl departamento municipal ha sido notificado para su pronta atención.</string>
+    <string name="dialog_btn_ok">Entendido</string>
+    <string name="dialog_btn_new_report">Nuevo reporte</string>
+    <string name="msg_camera_permission_required">Se requiere conceder permiso de cámara para tomar fotos</string>
+    <string name="msg_camera_error">No se pudo abrir la cámara en el dispositivo</string>
+    <string name="msg_location_detected">Ubicación detectada correctamente</string>
+    <string name="btn_logout">Cerrar sesión</string>
+
     <!-- Visual feedback messages (Simulation) -->
     <string name="msg_login_success">Acceso concedido (Simulación visual)</string>
     <string name="msg_register_success">¡Cuenta creada con éxito! (Simulación visual)</string>

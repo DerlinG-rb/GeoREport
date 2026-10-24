@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.georeport.R
 import com.example.georeport.databinding.ActivityLoginBinding
+import com.example.georeport.ui.home.HomeActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -41,8 +42,15 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(
                     this,
                     "${getString(R.string.msg_login_success)}: $email",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_SHORT
                 ).show()
+
+                // Redirigir a la pantalla de Inicio (Reporte de Incidencias)
+                val intent = Intent(this, HomeActivity::class.java).apply {
+                    putExtra("USER_EMAIL", email)
+                }
+                startActivity(intent)
+                finish()
             }
         }
 
