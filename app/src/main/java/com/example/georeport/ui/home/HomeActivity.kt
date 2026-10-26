@@ -25,6 +25,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.georeport.R
+import com.example.georeport.data.IncidentReport
+import com.example.georeport.data.PhotoStorage
+import com.example.georeport.data.ReportStore
+import com.example.georeport.data.UserStore
 import com.example.georeport.databinding.ActivityHomeBinding
 import com.example.georeport.ui.auth.LoginActivity
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -32,6 +36,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -55,10 +61,18 @@ import kotlin.random.Random
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
+    private lateinit var userStore: UserStore
+    private lateinit var reportStore: ReportStore
 
     // Evidencia fotográfica
     private var selectedImageUri: Uri? = null
+    private var selectedPhotoPath: String? = null
     private var tempCameraUri: Uri? = null
+    private var photoJob: Job? = null
+    private val photoStorage by lazy { PhotoStorage(this) }
+    private var tempCameraPath: String? = null
+    private var savingReport = false
+    private var currentUserEmail: String = ""
 
     // OpenStreetMap y GPS
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -81,9 +95,14 @@ class HomeActivity : AppCompatActivity() {
     private val takePictureLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success: Boolean ->
+        val cameraPath = tempCameraPath
         if (success && tempCameraUri != null) {
-            displaySelectedPhoto(tempCameraUri!!)
+            displaySelectedPhoto(tempCameraUri!!, cameraPath)
+        } else {
+            deleteCameraFile(cameraPath)
         }
+        tempCameraUri = null
+        tempCameraPath = null
     }
 
     // Launcher para permisos de cámara
@@ -142,8 +161,19 @@ class HomeActivity : AppCompatActivity() {
             getSharedPreferences("${packageName}_osm", Context.MODE_PRIVATE)
         )
 
+        Configuration.getInstance().apply {
+            // Map tiles are disposable and must not occupy shared external storage.
+            osmdroidBasePath = File(cacheDir, "osmdroid")
+            osmdroidTileCache = File(cacheDir, "osmdroid/tiles")
+            tileFileSystemCacheMaxBytes = 64L * 1024 * 1024
+            tileFileSystemCacheTrimBytes = 48L * 1024 * 1024
+        }
+
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        userStore = UserStore(this)
+        reportStore = ReportStore(this)
 
         // Restaurar estado en caso de recreación
         if (savedInstanceState != null) {
@@ -154,32 +184,73 @@ class HomeActivity : AppCompatActivity() {
                 savedInstanceState.getParcelable("TEMP_CAMERA_URI")
             }
 
-            selectedImageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                savedInstanceState.getParcelable("SELECTED_IMAGE_URI", Uri::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                savedInstanceState.getParcelable("SELECTED_IMAGE_URI")
+            tempCameraPath = savedInstanceState.getString("TEMP_CAMERA_PATH")
+            val restored = photoStorage.resolve(savedInstanceState.getString("SELECTED_PHOTO_PATH"))
+            if (restored != null) {
+                selectedPhotoPath = restored.absolutePath
+                selectedImageUri = Uri.fromFile(restored)
+                photoJob = lifecycleScope.launch {
+                    setStorageBusy(true)
+                    try {
+                        val bitmap = withContext(Dispatchers.IO) { photoStorage.preview(restored) }
+                        binding.ivIncidentPhoto.setImageBitmap(bitmap)
+                        binding.layoutNoPhoto.visibility = View.GONE
+                        binding.layoutPhotoPreview.visibility = View.VISIBLE
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        clearPhoto(deleteFile = false)
+                    } finally {
+                        setStorageBusy(false)
+                    }
+                }
             }
-            selectedImageUri?.let { displaySelectedPhoto(it) }
         }
 
         setupUserHeader()
         setupCategoriesDropdown()
-        setupOpenStreetMap()
         setupLocationClient()
+        setupOpenStreetMap()
         setupListeners()
+        val protectedPhoto = selectedPhotoPath
+        val protectedCamera = tempCameraPath
+        lifecycleScope.launch(Dispatchers.IO) {
+            val expiry = System.currentTimeMillis() - 24L * 60 * 60 * 1000
+            runCatching {
+                File(filesDir, "report_photos").listFiles()?.forEach { file ->
+                    if (file.absolutePath != protectedPhoto && file.lastModified() < expiry) {
+                        deleteUnusedPhoto(file.absolutePath)
+                    }
+                }
+                File(cacheDir, "camera_photos").listFiles()?.forEach { file ->
+                    if (file.absolutePath != protectedCamera && file.lastModified() < expiry) {
+                        deleteCameraFile(file.absolutePath)
+                    }
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        tempCameraPath?.let { outState.putString("TEMP_CAMERA_PATH", it) }
         tempCameraUri?.let { outState.putParcelable("TEMP_CAMERA_URI", it) }
         selectedImageUri?.let { outState.putParcelable("SELECTED_IMAGE_URI", it) }
+        selectedPhotoPath?.let { outState.putString("SELECTED_PHOTO_PATH", it) }
     }
 
     private fun setupUserHeader() {
-        val userEmail = intent.getStringExtra("USER_EMAIL")
-        if (!userEmail.isNullOrBlank()) {
-            binding.tvUserEmailDisplay.text = userEmail
+        val sessionEmail = userStore.getSessionEmail()
+        val userEmail = intent.getStringExtra(EXTRA_USER_EMAIL)
+            ?.takeIf { it.isNotBlank() }
+            ?: sessionEmail
+            ?: ""
+
+        currentUserEmail = userEmail
+        binding.tvUserEmailDisplay.text = if (userEmail.isNotBlank()) {
+            userEmail
+        } else {
+            getString(R.string.home_header_welcome)
         }
     }
 
@@ -583,7 +654,8 @@ class HomeActivity : AppCompatActivity() {
             if (!imagesFolder.exists()) {
                 imagesFolder.mkdirs()
             }
-            val imageFile = File(imagesFolder, "incident_${System.currentTimeMillis()}.jpg")
+            val imageFile = File.createTempFile("incident_", ".jpg", imagesFolder)
+            tempCameraPath = imageFile.absolutePath
             val uri = FileProvider.getUriForFile(
                 this,
                 "${applicationContext.packageName}.fileprovider",
@@ -592,9 +664,12 @@ class HomeActivity : AppCompatActivity() {
             tempCameraUri = uri
             takePictureLauncher.launch(uri)
         } catch (e: Exception) {
+            deleteCameraFile(tempCameraPath)
+            tempCameraPath = null
+            tempCameraUri = null
             Toast.makeText(
                 this,
-                getString(R.string.msg_camera_error) + ": ${e.localizedMessage}",
+                getString(R.string.msg_camera_error),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -617,16 +692,69 @@ class HomeActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun displaySelectedPhoto(uri: Uri) {
-        selectedImageUri = uri
-        binding.ivIncidentPhoto.setImageURI(uri)
-        binding.layoutNoPhoto.visibility = View.GONE
-        binding.layoutPhotoPreview.visibility = View.VISIBLE
+    private fun displaySelectedPhoto(uri: Uri, cameraPath: String? = null) {
+        photoJob?.cancel()
+        photoJob = lifecycleScope.launch {
+            setStorageBusy(true)
+            var imported: File? = null
+            var adopted = false
+            try {
+                val bitmap = withContext(Dispatchers.IO) {
+                    val file = photoStorage.import(uri)
+                    imported = file
+                    photoStorage.preview(file)
+                }
+                val previous = selectedPhotoPath
+                selectedPhotoPath = imported!!.absolutePath
+                selectedImageUri = Uri.fromFile(imported)
+                adopted = true
+                binding.ivIncidentPhoto.setImageBitmap(bitmap)
+                binding.layoutNoPhoto.visibility = View.GONE
+                binding.layoutPhotoPreview.visibility = View.VISIBLE
+                withContext(Dispatchers.IO) { deleteUnusedPhoto(previous) }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                Toast.makeText(this@HomeActivity, R.string.msg_photo_load_error, Toast.LENGTH_LONG).show()
+            } finally {
+                withContext(NonCancellable + Dispatchers.IO) {
+                    if (!adopted) imported?.delete()
+                    deleteCameraFile(cameraPath)
+                }
+                setStorageBusy(false)
+            }
+        }
     }
 
-    private fun clearPhoto() {
+    private fun deleteUnusedPhoto(path: String?) {
+        val file = photoStorage.resolve(path) ?: return
+        // A photo may already belong to a saved report, including after recreation.
+        if (!reportStore.usesPhoto(file.absolutePath)) file.delete()
+    }
+
+    private fun deleteCameraFile(path: String?) {
+        if (path == null) return
+        val file = File(path).canonicalFile
+        if (file.parentFile == File(cacheDir, "camera_photos").canonicalFile) file.delete()
+    }
+
+    private fun setStorageBusy(busy: Boolean) {
+        binding.btnSubmitReport.isEnabled = !busy
+        binding.btnTakePhoto.isEnabled = !busy
+        binding.btnUploadFile.isEnabled = !busy
+        binding.btnChangePhoto.isEnabled = !busy
+        binding.btnRemovePhoto.isEnabled = !busy
+        binding.btnLogout.isEnabled = !busy
+    }
+
+    private fun clearPhoto(deleteFile: Boolean = true) {
+        photoJob?.cancel()
+        val previous = selectedPhotoPath
+        if (deleteFile) lifecycleScope.launch(Dispatchers.IO) {
+            runCatching { deleteUnusedPhoto(previous) }
+        }
+        selectedPhotoPath = null
         selectedImageUri = null
-        tempCameraUri = null
         binding.ivIncidentPhoto.setImageDrawable(null)
         binding.layoutPhotoPreview.visibility = View.GONE
         binding.layoutNoPhoto.visibility = View.VISIBLE
@@ -651,8 +779,9 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun validateAndSubmitReport() {
+        if (savingReport || photoJob?.isActive == true) return
         // 1. Validación de fotografía
-        if (selectedImageUri == null) {
+        if (selectedImageUri == null || selectedPhotoPath == null) {
             Toast.makeText(this, getString(R.string.msg_photo_required), Toast.LENGTH_LONG).show()
             binding.homeScrollView.smoothScrollTo(0, binding.cardPhotoEvidence.top)
             return
@@ -670,21 +799,63 @@ class HomeActivity : AppCompatActivity() {
         }
 
         val description = binding.etDescription.text?.toString()?.trim().orEmpty()
-        val coordinatesText = selectedIncidentPoint?.let {
+        val point = selectedIncidentPoint
+        val address = binding.etLocation.text?.toString()?.trim().orEmpty()
+            .ifEmpty { getString(R.string.msg_location_pinned) }
+        val coordinatesText = point?.let {
             String.format(Locale.US, " (Lat: %.5f, Lon: %.5f)", it.latitude, it.longitude)
         } ?: ""
 
-        val location = binding.etLocation.text?.toString()?.trim().orEmpty().ifEmpty {
-            "Ubicación fijada en el mapa"
-        } + coordinatesText
+        val ticketNumber = Random.nextInt(10000, 100000)
+        val now = Date()
 
-        val ticketNumber = Random.nextInt(10000, 99999)
+        val report = IncidentReport(
+            ticket = ticketNumber,
+            userEmail = currentUserEmail,
+            category = selectedCategory,
+            description = description,
+            location = address,
+            latitude = point?.latitude,
+            longitude = point?.longitude,
+            photoPath = selectedPhotoPath,
+            createdAt = now.time
+        )
+
+        savingReport = true
+        setStorageBusy(true)
+        lifecycleScope.launch {
+            try {
+                val saved = withContext(NonCancellable + Dispatchers.IO) {
+                    photoStorage.resolve(report.photoPath) != null && reportStore.save(report)
+                }
+                if (!saved) {
+                    Toast.makeText(this@HomeActivity, R.string.msg_report_save_error, Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                // Detach saved evidence immediately so repeated taps cannot submit it twice.
+                resetForm()
+                showReportSaved(ticketNumber, now, selectedCategory, address, coordinatesText, description)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                Toast.makeText(this@HomeActivity, R.string.msg_report_save_error, Toast.LENGTH_LONG).show()
+            } finally {
+                savingReport = false
+                setStorageBusy(false)
+            }
+        }
+    }
+
+    private fun showReportSaved(
+        ticketNumber: Int, now: Date, selectedCategory: String,
+        address: String, coordinatesText: String, description: String
+    ) {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        val dateString = dateFormat.format(Date())
+        val dateString = dateFormat.format(now)
 
         val message = getString(R.string.msg_report_success_desc, ticketNumber) +
                 "\n\n• Categoría: $selectedCategory" +
-                "\n• Ubicación: $location" +
+                "\n• Ubicación: $address$coordinatesText" +
                 "\n• Fecha: $dateString" +
                 (if (description.isNotEmpty()) "\n• Detalle: $description" else "")
 
@@ -704,14 +875,14 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun resetForm() {
-        clearPhoto()
+        clearPhoto(deleteFile = false)
         binding.actvIncidentCategory.setText("", false)
         binding.chipGroupCategories.clearCheck()
         binding.tilIncidentCategory.error = null
         binding.etDescription.text?.clear()
         binding.etLocation.text?.clear()
         selectedIncidentPoint = null
-        incidentMarker?.setVisible(false) // Ocultar marcador de forma segura
+        incidentMarker?.setVisible(false)
         binding.tvCoordinates.text = getString(R.string.coordinates_default)
         binding.mapView.invalidate()
         binding.homeScrollView.smoothScrollTo(0, 0)
@@ -720,8 +891,9 @@ class HomeActivity : AppCompatActivity() {
     private fun showLogoutDialog() {
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.btn_logout))
-            .setMessage("¿Estás seguro de que deseas salir?")
-            .setPositiveButton("Cerrar Sesión") { _, _ ->
+            .setMessage(getString(R.string.msg_logout_confirm))
+            .setPositiveButton(getString(R.string.dialog_btn_logout)) { _, _ ->
+                userStore.clearSession()
                 val intent = Intent(this, LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
@@ -748,5 +920,9 @@ class HomeActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding.mapView.onDetach()
+    }
+
+    companion object {
+        const val EXTRA_USER_EMAIL = "USER_EMAIL"
     }
 }

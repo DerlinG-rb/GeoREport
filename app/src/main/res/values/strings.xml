@@ -35,7 +35,7 @@
     <string name="section_photo_title">Evidencia Fotográfica</string>
     <string name="section_photo_subtitle">Toma una foto en el lugar o carga una imagen desde tu dispositivo</string>
     <string name="photo_prompt_title">Adjuntar Foto del Incidente</string>
-    <string name="photo_prompt_desc">Selecciona si prefieres tomar una foto directa o subir un archivo</string>
+    <string name="photo_prompt_desc">Toma una foto o selecciona una imagen de hasta 20 MiB</string>
     <string name="btn_take_photo">Tomar Foto</string>
     <string name="btn_upload_file">Cargar Archivo</string>
     <string name="btn_change_photo">Cambiar Foto</string>
@@ -93,10 +93,24 @@
     <string name="msg_location_detected">Ubicación detectada correctamente</string>
     <string name="btn_logout">Cerrar sesión</string>
 
-    <!-- Visual feedback messages (Simulation) -->
-    <string name="msg_login_success">Acceso concedido (Simulación visual)</string>
-    <string name="msg_register_success">¡Cuenta creada con éxito! (Simulación visual)</string>
+    <!-- Authentication feedback -->
+    <string name="msg_login_success">Sesión iniciada correctamente</string>
+    <string name="msg_register_success">Cuenta creada con éxito. Ya puedes iniciar sesión.</string>
     <string name="msg_empty_fields">Por favor ingresa todos los campos para continuar</string>
+    <string name="msg_field_required">Este campo es obligatorio</string>
     <string name="msg_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="msg_password_too_short">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="msg_email_invalid">Ingresa un correo electrónico válido</string>
+    <string name="msg_email_not_registered">No existe una cuenta con este correo. Regístrate primero.</string>
+    <string name="msg_email_registered">Ya existe una cuenta con este correo</string>
+    <string name="msg_wrong_password">Contraseña incorrecta. Inténtalo de nuevo.</string>
+    <string name="msg_phone_invalid">Ingresa un teléfono válido (mínimo 7 dígitos)</string>
+    <string name="msg_name_required">Ingresa tu nombre completo</string>
+    <string name="msg_register_save_error">No se pudo crear la cuenta. Inténtalo de nuevo.</string>
+    <string name="msg_report_save_error">No se pudo guardar el reporte. Inténtalo de nuevo.</string>
+    <string name="msg_photo_load_error">No se pudo cargar la imagen. Usa una imagen válida de hasta 20 MiB y comprueba el espacio disponible.</string>
     <string name="msg_forgot_password_info">Función de recuperación en desarrollo</string>
+    <string name="msg_location_pinned">Ubicación fijada en el mapa</string>
+    <string name="msg_logout_confirm">¿Estás seguro de que deseas salir?</string>
+    <string name="dialog_btn_logout">Cerrar sesión</string>
 </resources>
