@@ -2,6 +2,7 @@ package com.example.georeport.ui.home
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,6 +16,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
@@ -24,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.georeport.ui.common.fitScreenContent
 import com.example.georeport.R
 import com.example.georeport.data.IncidentReport
 import com.example.georeport.data.PhotoStorage
@@ -45,7 +48,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.TileSourcePolicy
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
@@ -155,7 +159,6 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Configuración de OpenStreetMap antes de inflar vistas
-        Configuration.getInstance().userAgentValue = packageName
         Configuration.getInstance().load(
             applicationContext,
             getSharedPreferences("${packageName}_osm", Context.MODE_PRIVATE)
@@ -163,14 +166,16 @@ class HomeActivity : AppCompatActivity() {
 
         Configuration.getInstance().apply {
             // Map tiles are disposable and must not occupy shared external storage.
-            osmdroidBasePath = File(cacheDir, "osmdroid")
-            osmdroidTileCache = File(cacheDir, "osmdroid/tiles")
+            userAgentValue = "GeoREport/1.0 ($packageName)"
+            osmdroidBasePath = File(cacheDir, "osmdroid").apply { mkdirs() }
+            osmdroidTileCache = File(cacheDir, "osmdroid/tiles").apply { mkdirs() }
             tileFileSystemCacheMaxBytes = 64L * 1024 * 1024
             tileFileSystemCacheTrimBytes = 48L * 1024 * 1024
         }
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        fitScreenContent(binding.root)
 
         userStore = UserStore(this)
         reportStore = ReportStore(this)
@@ -274,7 +279,19 @@ class HomeActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     private fun setupOpenStreetMap() {
         binding.mapView.apply {
-            setTileSource(TileSourceFactory.MAPNIK)
+            // Use the application's explicit identity, rather than osmdroid's normalized
+            // generic com.example package identity. Keep OSM's download restrictions.
+            setTileSource(XYTileSource(
+                "GeoREport-OSM", 0, 19, 256, ".png",
+                arrayOf("https://tile.openstreetmap.org/"),
+                "© OpenStreetMap contributors",
+                TileSourcePolicy(2, TileSourcePolicy.FLAG_NO_BULK or
+                    TileSourcePolicy.FLAG_NO_PREVENTIVE or
+                    TileSourcePolicy.FLAG_USER_AGENT_MEANINGFUL)
+            ))
+            setUseDataConnection(true)
+            minZoomLevel = 3.0
+            maxZoomLevel = 19.0
             setMultiTouchControls(true)
             controller.setZoom(16.5)
 
@@ -635,7 +652,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun openFilePicker() {
-        pickImageLauncher.launch("image/*")
+        try {
+            pickImageLauncher.launch("image/*")
+        } catch (error: ActivityNotFoundException) {
+            Log.e("HomeActivity", "No image picker available", error)
+            Toast.makeText(this, R.string.msg_picker_unavailable, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun checkCameraPermissionAndLaunch() {
@@ -651,9 +673,7 @@ class HomeActivity : AppCompatActivity() {
     private fun launchCamera() {
         try {
             val imagesFolder = File(cacheDir, "camera_photos")
-            if (!imagesFolder.exists()) {
-                imagesFolder.mkdirs()
-            }
+            check(imagesFolder.isDirectory || imagesFolder.mkdirs()) { "Camera storage unavailable" }
             val imageFile = File.createTempFile("incident_", ".jpg", imagesFolder)
             tempCameraPath = imageFile.absolutePath
             val uri = FileProvider.getUriForFile(
@@ -714,7 +734,8 @@ class HomeActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) { deleteUnusedPhoto(previous) }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                Log.e("HomeActivity", "Cannot import photo", error)
                 Toast.makeText(this@HomeActivity, R.string.msg_photo_load_error, Toast.LENGTH_LONG).show()
             } finally {
                 withContext(NonCancellable + Dispatchers.IO) {
@@ -739,12 +760,13 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setStorageBusy(busy: Boolean) {
-        binding.btnSubmitReport.isEnabled = !busy
-        binding.btnTakePhoto.isEnabled = !busy
-        binding.btnUploadFile.isEnabled = !busy
-        binding.btnChangePhoto.isEnabled = !busy
-        binding.btnRemovePhoto.isEnabled = !busy
-        binding.btnLogout.isEnabled = !busy
+        val enabled = !busy && !savingReport
+        binding.btnSubmitReport.isEnabled = enabled
+        binding.btnTakePhoto.isEnabled = enabled
+        binding.btnUploadFile.isEnabled = enabled
+        binding.btnChangePhoto.isEnabled = enabled
+        binding.btnRemovePhoto.isEnabled = enabled
+        binding.btnLogout.isEnabled = enabled
     }
 
     private fun clearPhoto(deleteFile: Boolean = true) {

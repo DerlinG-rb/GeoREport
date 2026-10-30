@@ -113,4 +113,6 @@
     <string name="msg_location_pinned">Ubicación fijada en el mapa</string>
     <string name="msg_logout_confirm">¿Estás seguro de que deseas salir?</string>
     <string name="dialog_btn_logout">Cerrar sesión</string>
+    <string name="msg_picker_unavailable">No hay una aplicación disponible para seleccionar imágenes.</string>
+    <string name="osm_attribution">© OpenStreetMap contributors</string>
 </resources>

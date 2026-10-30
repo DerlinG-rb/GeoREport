@@ -1,13 +1,10 @@
 package com.example.georeport.ui.auth
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import com.example.georeport.ui.common.fitScreenContent
 import com.example.georeport.R
 import com.example.georeport.data.AuthValidator
 import com.example.georeport.data.UserStore
@@ -24,24 +21,8 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         userStore = UserStore(this)
-        applySystemBarInsets()
+        fitScreenContent(binding.root)
         setupListeners()
-    }
-
-    private fun applySystemBarInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val bars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
-            )
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            WindowInsetsControllerCompat(window, window.decorView).apply {
-                isAppearanceLightStatusBars = true
-                isAppearanceLightNavigationBars = true
-            }
-        }
     }
 
     private fun setupListeners() {

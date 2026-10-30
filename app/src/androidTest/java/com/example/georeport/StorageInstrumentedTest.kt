@@ -2,6 +2,7 @@ package com.example.georeport
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.media.ExifInterface
 import android.graphics.Bitmap
 import androidx.core.content.FileProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -102,7 +103,7 @@ class StorageInstrumentedTest {
         val source = File.createTempFile("test_", ".png", camera)
         var imported: File? = null
         try {
-            val bitmap = Bitmap.createBitmap(2400, 1600, Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(2561, 1600, Bitmap.Config.ARGB_8888)
             source.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
             bitmap.recycle()
             val storage = PhotoStorage(context)
@@ -113,6 +114,34 @@ class StorageInstrumentedTest {
             preview.recycle()
             assertNull(storage.resolve(source.absolutePath))
             assertNull(storage.resolve(File(context.filesDir, "report_photos/../private.txt").path))
+        } finally {
+            source.delete()
+            imported?.delete()
+        }
+    }
+
+    @Test
+    fun smallCameraPhotoIsOrientedWithoutChangingEvidence() = runBlocking {
+        val camera = File(context.cacheDir, "camera_photos").apply { mkdirs() }
+        val source = File.createTempFile("test_", ".jpg", camera)
+        var imported: File? = null
+        try {
+            val original = Bitmap.createBitmap(120, 80, Bitmap.Config.ARGB_8888)
+            source.outputStream().use { original.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+            original.recycle()
+            ExifInterface(source.absolutePath).apply {
+                setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_ROTATE_90.toString())
+                saveAttributes()
+            }
+            val storage = PhotoStorage(context)
+            imported = storage.import(FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", source))
+            assertEquals("jpg", imported.extension)
+            assertArrayEquals(source.readBytes(), imported.readBytes())
+            source.delete() // The saved copy must survive removal of the temporary capture.
+            val preview = storage.preview(imported)
+            assertEquals(80, preview.width)
+            assertEquals(120, preview.height)
+            preview.recycle()
         } finally {
             source.delete()
             imported?.delete()
