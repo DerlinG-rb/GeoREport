@@ -20,11 +20,13 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Usa el mismo almacenamiento local que consulta la pantalla de inicio de sesión.
         userStore = UserStore(this)
         fitScreenContent(binding.root)
         setupListeners()
     }
 
+    // Volver cierra esta pantalla; Registrarse inicia la validación del formulario.
     private fun setupListeners() {
         binding.btnBack.setOnClickListener { finish() }
         binding.tvGoToLogin.setOnClickListener { finish() }
@@ -34,6 +36,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    // Recoge los datos. La contraseña conserva sus espacios tal como el usuario la escribió.
     private fun attemptRegister() {
         val fullName = binding.etFullName.text?.toString()?.trim().orEmpty()
         val email = binding.etRegisterEmail.text?.toString()?.trim().orEmpty()
@@ -43,6 +46,7 @@ class RegisterActivity : AppCompatActivity() {
 
         clearErrors()
 
+        // Se muestra el primer error: campos, formatos, confirmación o correo duplicado.
         when {
             fullName.isEmpty() -> {
                 binding.tilFullName.error = getString(R.string.msg_name_required)
@@ -84,6 +88,7 @@ class RegisterActivity : AppCompatActivity() {
                 binding.tilRegisterEmail.error = getString(R.string.msg_email_registered)
                 binding.etRegisterEmail.requestFocus()
             }
+            // Si los datos son válidos, guarda nombre, teléfono, sal y hash de contraseña.
             !userStore.register(fullName, email, phone, password) -> {
                 Toast.makeText(
                     this,
@@ -98,6 +103,7 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
 
+                // Devuelve el correo a Login para rellenarlo; registrar no inicia la sesión.
                 setResult(
                     RESULT_OK,
                     Intent().putExtra(EXTRA_EMAIL, email.trim().lowercase())
@@ -107,6 +113,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    // Quita los mensajes anteriores antes de revisar de nuevo el formulario.
     private fun clearErrors() {
         binding.tilFullName.error = null
         binding.tilRegisterEmail.error = null

@@ -19,10 +19,15 @@ data class IncidentReport(
     val createdAt: Long
 )
 
-/** Incremental, transactional persistence. Call disk operations on Dispatchers.IO. */
+/**
+ * Base de datos SQLite local para reportes; las cuentas de acceso se guardan en UserStore.
+ * Cada reporte conserva su dirección, latitud y longitud dentro de un JSON.
+ * Ejecutar las operaciones de disco en Dispatchers.IO para no bloquear la interfaz.
+ */
 class ReportStore internal constructor(private val database: Database) {
     constructor(context: Context) : this(database(context.applicationContext))
 
+    // Inserta un reporte completo y su ruta de foto; devuelve false si falla la escritura.
     fun save(report: IncidentReport): Boolean = try {
         database.writableDatabase.insertOrThrow("reports", null, ContentValues().apply {
             put("payload", report.toJson().toString())
@@ -32,6 +37,7 @@ class ReportStore internal constructor(private val database: Database) {
         false
     }
 
+    // Lee los reportes por id y transforma cada JSON en un IncidentReport; use cierra el cursor.
     fun getAll(): List<IncidentReport> =
         database.readableDatabase.rawQuery("SELECT payload FROM reports ORDER BY id", null).use { cursor ->
             buildList {
@@ -39,17 +45,21 @@ class ReportStore internal constructor(private val database: Database) {
             }
         }
 
+    // Cuenta los reportes sin cargar todo su contenido en memoria.
     fun count(): Int = database.readableDatabase.rawQuery("SELECT COUNT(*) FROM reports", null).use {
         it.moveToFirst()
         it.getInt(0)
     }
 
+    // Comprueba si una foto sigue vinculada a algún reporte; ? recibe la ruta como parámetro.
     fun usesPhoto(path: String): Boolean = database.readableDatabase.rawQuery(
         "SELECT 1 FROM reports WHERE photo_path = ? LIMIT 1", arrayOf(path)
     ).use { it.moveToFirst() }
 
+    // SQLiteOpenHelper crea y abre georeport_reports.db, actualmente con esquema versión 1.
     internal class Database(private val context: Context) :
         SQLiteOpenHelper(context, "georeport_reports.db", null, 1) {
+        // Crea la tabla de reportes, un índice para buscar fotos y el registro de migraciones.
         override fun onCreate(db: SQLiteDatabase) {
             db.execSQL("CREATE TABLE reports (id INTEGER PRIMARY KEY, payload TEXT NOT NULL, photo_path TEXT)")
             db.execSQL("CREATE INDEX reports_photo ON reports(photo_path)")
@@ -58,6 +68,8 @@ class ReportStore internal constructor(private val database: Database) {
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
 
+        // Importa una sola vez los reportes de versiones que usaban SharedPreferences.
+        // La transacción confirma toda la importación o la revierte si ocurre un error.
         override fun onOpen(db: SQLiteDatabase) {
             super.onOpen(db)
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -86,6 +98,7 @@ class ReportStore internal constructor(private val database: Database) {
         }
     }
 
+    // Serializa los datos del reporte para guardarlos en la columna payload.
     private fun IncidentReport.toJson(): JSONObject = JSONObject().apply {
         put(KEY_TICKET, ticket)
         put(KEY_USER_EMAIL, userEmail)
@@ -98,6 +111,7 @@ class ReportStore internal constructor(private val database: Database) {
         put(KEY_CREATED_AT, createdAt)
     }
 
+    // Reconstruye el reporte al leerlo; coordenadas y foto pueden no estar presentes.
     private fun JSONObject.toIncidentReport(): IncidentReport = IncidentReport(
         ticket = optInt(KEY_TICKET),
         userEmail = optString(KEY_USER_EMAIL),

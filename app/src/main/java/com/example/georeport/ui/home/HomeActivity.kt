@@ -272,6 +272,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Cliente de Google Play Services: combina las fuentes de ubicación disponibles.
     private fun setupLocationClient() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
@@ -364,6 +365,7 @@ class HomeActivity : AppCompatActivity() {
         return BitmapDrawable(resources, bitmap)
     }
 
+    // Antes de consultar la ubicación, comprueba el permiso o solicita autorización a Android.
     private fun checkLocationPermissionAndInit() {
         if (hasLocationPermission()) {
             enableUserLocationOverlay()
@@ -378,6 +380,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Acepta ubicación precisa (FINE) o aproximada (COARSE), según lo que autorice el usuario.
     private fun hasLocationPermission(): Boolean {
         val fine = ContextCompat.checkSelfPermission(
             this,
@@ -391,6 +394,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
+    // Dibuja la posición del usuario en una capa del mapa, separada del marcador del incidente.
     private fun enableUserLocationOverlay() {
         if (!hasLocationPermission()) return
         try {
@@ -410,6 +414,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
+    // Solicita una ubicación actual con prioridad de alta precisión (no garantiza precisión GPS).
+    // centerMap mueve la vista; updateIncidentPoint decide si también cambia el lugar del reporte.
     private fun fetchRealGpsLocation(centerMap: Boolean, updateIncidentPoint: Boolean = true) {
         if (!hasLocationPermission()) {
             requestLocationPermissionLauncher.launch(
@@ -423,6 +429,7 @@ class HomeActivity : AppCompatActivity() {
 
         binding.tvCoordinates.text = getString(R.string.gps_status_searching)
 
+        // La consulta es asíncrona: el resultado llega al listener sin bloquear la pantalla.
         val cancellationTokenSource = CancellationTokenSource()
         try {
             fusedLocationClient.getCurrentLocation(
@@ -430,8 +437,10 @@ class HomeActivity : AppCompatActivity() {
                 cancellationTokenSource.token
             ).addOnSuccessListener { location: Location? ->
                 if (location != null) {
+                    // Convierte latitud/longitud al formato de coordenadas que utiliza el mapa.
                     val geoPoint = GeoPoint(location.latitude, location.longitude)
                     lastUserGeoPoint = geoPoint
+                    // Si aún no hay un lugar seleccionado, la ubicación inicial lo establece.
                     if (updateIncidentPoint || selectedIncidentPoint == null) {
                         updateIncidentLocation(geoPoint)
                     } else if (selectedIncidentPoint != null) {
@@ -462,6 +471,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
+    // Si la consulta actual falla, intenta usar la última ubicación conocida del dispositivo.
+    // Puede ser antigua o no existir: no es necesariamente una lectura nueva del GPS.
     private fun fallbackToLastLocation(centerMap: Boolean, updateIncidentPoint: Boolean = true) {
         if (!hasLocationPermission()) return
         try {
@@ -486,6 +497,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Si no hay ubicación disponible, conserva las coordenadas del incidente ya seleccionado.
     private fun onLocationUnavailable() {
         checkGpsProviderEnabled()
         if (selectedIncidentPoint != null) {
@@ -500,6 +512,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Comprueba si el GPS está encendido y muestra un aviso; no lo activa automáticamente.
     private fun checkGpsProviderEnabled() {
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val isGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -508,6 +521,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Guarda el lugar del incidente, mueve su marcador y muestra sus coordenadas en el formulario.
     private fun updateIncidentLocation(point: GeoPoint) {
         selectedIncidentPoint = point
         incidentMarker?.position = point
@@ -530,19 +544,24 @@ class HomeActivity : AppCompatActivity() {
         resolveAddressFromCoordinates(point)
     }
 
+    // Geocodificación inversa: convierte coordenadas en una dirección legible.
     private fun resolveAddressFromCoordinates(point: GeoPoint) {
+        // Cancela la búsqueda anterior al elegir otro punto y consulta fuera del hilo de interfaz.
         geocodeJob?.cancel()
         geocodeJob = lifecycleScope.launch(Dispatchers.IO) {
             val geocoder = Geocoder(this@HomeActivity, Locale.getDefault())
             val addresses = getAddressesFromPoint(geocoder, point.latitude, point.longitude)
             val resolvedAddress = formatAddress(addresses, point)
 
+            // Los cambios en controles visuales se realizan en el hilo principal.
             withContext(Dispatchers.Main) {
                 binding.etLocation.setText(resolvedAddress)
             }
         }
     }
 
+    // Pide como máximo una dirección. Si el servicio falta o falla, devuelve null.
+    // Android 13 o superior usa un callback; versiones anteriores usan la llamada síncrona.
     private suspend fun getAddressesFromPoint(
         geocoder: Geocoder,
         latitude: Double,
@@ -582,6 +601,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Si no se obtiene una dirección, muestra latitud y longitud como texto alternativo.
     private fun formatAddress(addresses: List<Address>?, point: GeoPoint): String {
         if (addresses.isNullOrEmpty()) {
             return String.format(Locale.US, "Lat: %.5f, Lon: %.5f", point.latitude, point.longitude)
@@ -632,10 +652,12 @@ class HomeActivity : AppCompatActivity() {
         binding.chipOther.setOnClickListener { selectCategory(getString(R.string.category_other)) }
 
         // Acciones de ubicación GPS en OpenStreetMap
+        // Este botón coloca el incidente en la ubicación del usuario y centra el mapa.
         binding.btnDetectLocation.setOnClickListener {
             fetchRealGpsLocation(centerMap = true, updateIncidentPoint = true)
         }
 
+        // Este botón centra el mapa en el usuario conservando el incidente si ya fue seleccionado.
         binding.fabMyLocation.setOnClickListener {
             fetchRealGpsLocation(centerMap = true, updateIncidentPoint = false)
         }
