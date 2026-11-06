@@ -4,14 +4,14 @@
     <color name="primary_blue">#1565C0</color>
     <color name="primary_dark">#0D47A1</color>
     <color name="primary_light">#E3F2FD</color>
-    <color name="accent_orange">#FF6D00</color>
+    <color name="accent_orange">#B84A00</color>
     <color name="accent_red">#D32F2F</color>
 
     <!-- Neutral Palette -->
     <color name="bg_light">#F5F7FB</color>
     <color name="surface_card">#FFFFFF</color>
     <color name="text_primary">#1A202C</color>
-    <color name="text_secondary">#718096</color>
+    <color name="text_secondary">#526176</color>
     <color name="stroke_light">#E2E8F0</color>
 
     <!-- Standard Colors -->

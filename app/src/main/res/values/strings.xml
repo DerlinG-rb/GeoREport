@@ -72,13 +72,13 @@
     <string name="btn_submit_report">Enviar Reporte de Incidencia</string>
 
     <!-- OpenStreetMap & Real GPS strings -->
-    <string name="map_instruction">Toca en el mapa para mover la ubicación del incidente</string>
+    <string name="map_instruction">El GPS indica la posición aproximada del teléfono. Toca o arrastra el punto en el mapa para confirmar o corregir dónde está el incidente.</string>
     <string name="map_incident_marker_title">Lugar del Incidente</string>
     <string name="map_incident_marker_snippet">Arrastra o toca el mapa para reposicionar</string>
     <string name="gps_status_searching">Obteniendo ubicación GPS precisa...</string>
     <string name="gps_status_acquired">GPS fijado con éxito</string>
     <string name="gps_permission_required">Se requiere permiso de ubicación para mostrar tu posición real</string>
-    <string name="gps_disabled_prompt">Por favor activa el GPS de tu dispositivo para detectar tu ubicación exacta</string>
+    <string name="gps_disabled_prompt">Por favor activa el GPS de tu dispositivo para obtener tu ubicación aproximada</string>
     <string name="coordinates_default">Toca el mapa o presiona \'Mi Ubicación GPS\'</string>
 
     <!-- Feedback messages -->

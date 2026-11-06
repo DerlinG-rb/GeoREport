@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local demonstration data and secrets
+institution/*.sqlite3*
+.env.demo
+__pycache__/

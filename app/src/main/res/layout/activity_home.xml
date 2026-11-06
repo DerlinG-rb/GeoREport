@@ -57,7 +57,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/home_header_welcome"
                         android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -91,6 +91,8 @@
             android:paddingTop="16dp"
             android:paddingBottom="36dp">
 
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mi historial y seguimiento" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnNearby" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver incidencias cercanas en RA" />
             <!-- Banner / Greeting Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -128,7 +130,7 @@
                             android:background="@drawable/bg_photo_badge"
                             android:text="@string/badge_status_active"
                             android:textColor="@color/white"
-                            android:textSize="11sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -139,7 +141,7 @@
                         android:lineSpacingExtra="2dp"
                         android:text="@string/login_subtitle"
                         android:textColor="#D0E3FF"
-                        android:textSize="13sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -201,7 +203,7 @@
                                 android:layout_marginTop="2dp"
                                 android:text="@string/section_photo_subtitle"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -236,7 +238,7 @@
                             android:layout_marginTop="10dp"
                             android:text="@string/photo_prompt_title"
                             android:textColor="@color/primary_dark"
-                            android:textSize="15sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -246,7 +248,7 @@
                             android:gravity="center"
                             android:text="@string/photo_prompt_desc"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="14sp" />
 
                         <!-- Photo Action Buttons (Take photo OR Upload file) -->
                         <LinearLayout
@@ -260,7 +262,8 @@
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnTakePhoto"
                                 android:layout_width="0dp"
-                                android:layout_height="48dp"
+                                android:layout_height="wrap_content"
+                    android:minHeight="52dp"
                                 android:layout_marginEnd="6dp"
                                 android:layout_weight="1"
                                 android:text="@string/btn_take_photo"
@@ -280,7 +283,8 @@
                                 android:id="@+id/btnUploadFile"
                                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                                 android:layout_width="0dp"
-                                android:layout_height="48dp"
+                                android:layout_height="wrap_content"
+                    android:minHeight="52dp"
                                 android:layout_marginStart="6dp"
                                 android:layout_weight="1"
                                 android:text="@string/btn_upload_file"
@@ -349,7 +353,7 @@
                                         android:layout_marginStart="6dp"
                                         android:text="@string/photo_status_attached"
                                         android:textColor="@color/white"
-                                        android:textSize="12sp"
+                                        android:textSize="14sp"
                                         android:textStyle="bold" />
                                 </LinearLayout>
                             </FrameLayout>
@@ -367,13 +371,14 @@
                                 android:id="@+id/btnChangePhoto"
                                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                                 android:layout_width="0dp"
-                                android:layout_height="44dp"
+                                android:layout_height="wrap_content"
+                    android:minHeight="52dp"
                                 android:layout_marginEnd="6dp"
                                 android:layout_weight="1"
                                 android:text="@string/btn_change_photo"
                                 android:textAllCaps="false"
                                 android:textColor="@color/primary_blue"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 app:cornerRadius="8dp"
                                 app:icon="@drawable/ic_refresh"
                                 app:iconGravity="textStart"
@@ -385,11 +390,12 @@
                                 android:id="@+id/btnRemovePhoto"
                                 style="@style/Widget.MaterialComponents.Button.TextButton"
                                 android:layout_width="wrap_content"
-                                android:layout_height="44dp"
+                                android:layout_height="wrap_content"
+                    android:minHeight="52dp"
                                 android:text="@string/btn_delete_photo"
                                 android:textAllCaps="false"
                                 android:textColor="@color/accent_red"
-                                android:textSize="13sp"
+                                android:textSize="14sp"
                                 app:icon="@drawable/ic_delete"
                                 app:iconGravity="textStart"
                                 app:iconPadding="4dp"
@@ -459,7 +465,7 @@
                                 android:layout_marginTop="2dp"
                                 android:text="@string/section_category_subtitle"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -477,7 +483,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Selección rápida:"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <HorizontalScrollView
@@ -498,7 +504,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_pothole"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipLighting"
@@ -506,7 +512,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_lighting"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipGarbage"
@@ -514,7 +520,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_garbage"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipWater"
@@ -522,7 +528,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_water"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipTree"
@@ -530,7 +536,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_tree"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipTraffic"
@@ -538,7 +544,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_traffic"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/chipOther"
@@ -546,14 +552,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/chip_other"
-                                android:textSize="13sp" />
+                                android:textSize="14sp" />
                         </com.google.android.material.chip.ChipGroup>
                     </HorizontalScrollView>
 
                     <!-- Dropdown Picker for all categories -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilIncidentCategory"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        style="@style/Widget.GeoReport.Dropdown"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -635,7 +641,7 @@
                                 android:layout_marginTop="2dp"
                                 android:text="Información complementaria y ubicación"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
+                                android:textSize="14sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -653,7 +659,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Mapa OpenStreetMap (Ubicación en tiempo real):"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                     <!-- OpenStreetMap Map Container -->
@@ -701,7 +707,7 @@
                                     android:layout_marginStart="6dp"
                                     android:text="@string/map_instruction"
                                     android:textColor="@color/text_primary"
-                                    android:textSize="11sp"
+                                    android:textSize="14sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
 
@@ -716,7 +722,7 @@
                                 android:elevation="3dp"
                                 android:text="@string/coordinates_default"
                                 android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
+                                android:textSize="14sp" />
 
                             <!-- FAB to Center Real GPS Location -->
                             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -729,7 +735,7 @@
                                 android:src="@drawable/ic_my_location"
                                 app:backgroundTint="@color/surface_card"
                                 app:elevation="4dp"
-                                app:fabCustomSize="42dp"
+                                app:fabCustomSize="48dp"
                                 app:maxImageSize="22dp"
                                 app:tint="@color/primary_blue" />
                         </FrameLayout>
@@ -741,19 +747,20 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/osm_attribution"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="14sp" />
 
                     <!-- Real GPS Location Action Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDetectLocation"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
-                        android:layout_height="46dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="52dp"
                         android:layout_marginBottom="12dp"
                         android:text="@string/btn_get_location"
                         android:textAllCaps="false"
                         android:textColor="@color/primary_blue"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         app:cornerRadius="10dp"
                         app:icon="@drawable/ic_my_location"
@@ -767,7 +774,7 @@
                     <!-- Location Input with GPS Address -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilLocation"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.GeoReport.Input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/location_label"
@@ -791,7 +798,7 @@
                     <!-- Description Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilDescription"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.GeoReport.Input"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -821,7 +828,8 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmitReport"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                    android:minHeight="52dp"
                 android:text="@string/btn_submit_report"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -842,7 +850,7 @@
                 android:layout_marginTop="12dp"
                 android:text="GeoREport • Red de Colaboración Ciudadana"
                 android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

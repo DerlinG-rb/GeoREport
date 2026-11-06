@@ -19,7 +19,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "INSTITUTION_URL", "\"" + providers.gradleProperty("institutionUrl").orElse("http://10.0.2.2:8080").get() + "\"")
+        }
         release {
+            buildConfigField("String", "INSTITUTION_URL", "\"" + providers.gradleProperty("institutionReleaseUrl").orElse("https://localhost.invalid").get() + "\"")
             optimization {
                 enable = false
             }
@@ -32,6 +36,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 

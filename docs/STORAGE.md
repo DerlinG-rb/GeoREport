@@ -21,3 +21,12 @@ Con un dispositivo de pruebas conectado: `./gradlew.bat :app:connectedDebugAndro
 - OSM usa HTTPS, identificación explícita `GeoREport/1.0 (com.example.georeport)` después de cargar preferencias, directorios de caché creados antes de inflar el mapa y zoom limitado al rango de teselas. Se mantienen dos descargas simultáneas como máximo, sin descargas masivas ni preventivas. La atribución queda visible debajo del mapa. Véase la [política del proveedor](https://operations.osmfoundation.org/policies/tiles/).
 - Las teselas necesitan conexión a Internet la primera vez; disponer de coordenadas GPS no garantiza conexión. La selección de un punto funciona independientemente de la descarga de teselas.
 - La prueba instrumental de foto pequeña verifica orientación, extensión y conservación exacta de bytes después de eliminar la captura temporal; la prueba de foto grande cubre el fallo de muestreo y el límite de la vista previa.
+
+## Administración y seguimiento (v2)
+
+La base SQLite ahora incluye identificadores estables y las tablas `workflow`,
+`events` y `attempts`; la migración desde v1 conserva todos los reportes y fotografías.
+La interfaz consulta/escribe mediante `ReportService`, que aplica identidad,
+propiedad y transiciones. Los usuarios conservan el almacenamiento existente con
+rol persistente (los anteriores se consideran CIUDADANO). Consulte [DEMO.md](DEMO.md)
+para autorización local, inicialización administrativa, API y límites del prototipo.
