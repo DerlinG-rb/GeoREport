@@ -605,6 +605,12 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        binding.btnNearby.setOnClickListener {
+            startActivity(Intent(this, com.example.georeport.ui.ar.NearbyActivity::class.java))
+        }
+        binding.btnHistory.setOnClickListener {
+            startActivity(Intent(this, com.example.georeport.ui.reports.ReportsActivity::class.java))
+        }
         // Acciones de evidencia fotográfica
         binding.btnTakePhoto.setOnClickListener {
             checkCameraPermissionAndLaunch()

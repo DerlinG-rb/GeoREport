@@ -33,8 +33,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         userStore = UserStore(this)
-        userStore.getSessionEmail()?.let { email ->
-            openHome(email)
+        userStore.sessionIdentity()?.let {
+            com.example.georeport.ui.common.SessionNavigation.route(this)
             return
         }
 
@@ -104,10 +104,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun openHome(email: String) {
-        val intent = Intent(this, HomeActivity::class.java).apply {
-            putExtra(HomeActivity.EXTRA_USER_EMAIL, email)
-        }
-        startActivity(intent)
-        finish()
+        com.example.georeport.ui.common.SessionNavigation.route(this)
     }
 }

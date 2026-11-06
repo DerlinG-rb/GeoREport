@@ -12,7 +12,7 @@ SQLite v3 añade `report_locations`, un índice de coordenadas y `shared_visibil
 
 `ReportService.nearby` y `sharedDetail` exigen sesión. La consulta SQL de almacenamiento requiere `enabled=1`, descripción pública no vacía y estado APROBADO o CANALIZADO. Filtra por coordenadas antes de cargar los resultados; nunca utiliza el historial privado como listado compartido. El DTO devuelve solo identificador, categoría, coordenadas, estado, resumen público, fecha y procedencia aproximada/confirmada de la ubicación. No contiene autor, correo, teléfono, fotografía ni descripción privada.
 
-Solo `setSharedVisibility`, autorizado como ADMINISTRADOR, permite compartir. El administrador escribe y revisa un resumen público independiente; no se copia automáticamente la descripción privada. Debe excluir nombres, correos, teléfonos y cualquier dato identificable. El detalle público vuelve a consultar el estado y la autorización al tocar el marcador. El botón para abrir el detalle privado aparece solo para el propietario o administrador; la pantalla privada vuelve a aplicar sus permisos.
+Solo `setSharedVisibility`, autorizado como ADMINISTRADOR, permite compartir. El administrador escribe y revisa un resumen público independiente; no se copia automáticamente la descripción privada. Debe excluir nombres, correos, teléfonos y cualquier dato identificable. El detalle público vuelve a consultar el estado y la autorización al tocar el marcador. La RA muestra únicamente ese detalle público, también al propietario y al administrador. Los detalles privados se consultan por separado desde el historial o el panel de administración, con sus permisos correspondientes.
 
 La barrera de autorización reside en el servicio local y la consulta SQLite dentro del sandbox Android, no solo en la interfaz. Como la autenticación ya existente es local, no ofrece protección frente a root, modificación del APK o manipulación directa del almacenamiento del dispositivo. No se presenta como autorización de servidor.
 
@@ -33,7 +33,7 @@ Radio inicial 500 m; selector 100, 500 y 1000 m. Consulta por rectángulo geogr�
 
 Solicita cámara y ubicación al abrir por primera vez. Requiere coordenadas reales finitas, lectura de no más de 60 s y precisión estimada de 50 m o menos. Ante GPS apagado, permiso denegado o precisión insuficiente, informa el problema, vacía los resultados y ofrece permisos/ajustes/reintento. La ubicación aproximada concedida por Android puede no superar el umbral; no se inventan distancias.
 
-El formulario ya permite tocar o arrastrar el marcador. Ahora guarda si ese punto fue confirmado/corregido por el usuario; el GPS automático se considera aproximado. Una lectura GPS tardía no reemplaza una corrección manual. **Detectar ubicación** permite volver a elegir la posición del teléfono explícitamente. Se conserva el punto al recrear la pantalla. La selección manual no demuestra precisión topográfica. La cámara no determina por sí sola la posición del objeto fotografiado.
+El formulario permite tocar o arrastrar el marcador. En esta versión sus reportes se guardan como ubicación aproximada (`locationConfirmed=false`), incluso si se seleccionó el punto manualmente. El almacenamiento admite distinguir puntos confirmados, pero el formulario aún no registra esa confirmación. La cámara no determina por sí sola la posición del objeto fotografiado.
 
 ## Proyección y límites
 
@@ -44,6 +44,8 @@ Se estima el campo de visión a partir de distancia focal y tamaño físico del 
 No existe altura del incidente. Los marcadores representan un rumbo horizontal aproximado, no un punto detectado en la imagen, profundidad ni elevación medida. La altura utilizada por el modelo magnético, si existe, es la del teléfono; si falta, su referencia es nivel del mar y solo afecta esa aproximación magnética. No se asigna una elevación al incidente. Reportes a menos de 1 m se mantienen en la lista pero no se les inventa un rumbo visible. Los marcadores fuera del encuadre se ocultan; en solapamientos se prioriza el más cercano, manteniendo todos los resultados en la lista accesible. Cada marcador incluye icono, categoría, distancia y estado en texto.
 
 Cámara, sesión, sensores, ubicación, consultas y temporizador se liberan al pausar. No hay consultas de base ni de red en los eventos de orientación. El modo RA es opcional e independiente del envío de reportes.
+
+Desde el formulario, **Ver incidencias cercanas en RA** abre la cámara sin validar ni enviar el reporte en preparación. La vista de cámara precede a los controles secundarios. **Mi historial y seguimiento** abre la consulta de reportes por separado.
 
 Referencias primarias utilizadas: [SensorManager](https://developer.android.com/reference/android/hardware/SensorManager), [CameraCharacteristics](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics), [Camera2 preview](https://developer.android.com/media/camera/camera2/camera-preview).
 

@@ -59,6 +59,15 @@ class UserStore(context: Context) {
     fun getSessionEmail(): String? =
         prefs.getString(KEY_SESSION, null)?.takeIf { it.isNotBlank() }
 
+    fun sessionIdentity(): Pair<String, com.example.georeport.domain.Role>? {
+        val email = getSessionEmail() ?: return null
+        val user = readUsers().optJSONObject(email) ?: return null
+        val role = runCatching {
+            com.example.georeport.domain.Role.valueOf(user.optString("role", "CIUDADANO"))
+        }.getOrNull() ?: return null
+        return email to role
+    }
+
     fun clearSession() {
         prefs.edit().remove(KEY_SESSION).apply()
     }

@@ -20,9 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.georeport.R
 import com.example.georeport.data.*
 import com.example.georeport.domain.GeoProjection
-import com.example.georeport.domain.Role
 import com.example.georeport.ui.common.*
-import com.example.georeport.ui.reports.ReportsActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
@@ -90,8 +88,12 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
             setOnClickListener { action() }
         }
         label("Ver incidencias cercanas en RA").applyGeoText(24f)
-        label("Reportes reales autorizados de esta instalación. No se consultan otros dispositivos. Máximo 20 incidencias, ordenadas por cercanía.")
-        label("Guía direccional aproximada, sin altura ni profundidad. No reconoce objetos. El GPS registrado puede corresponder al teléfono, no al objeto fotografiado.")
+        label("Apunta hacia tu entorno para consultar incidencias aprobadas. Toca un marcador para ver su descripción, fecha y estado.")
+        label("La cámara no detecta problemas: muestra reportes registrados. Dirección y distancia aproximadas.")
+        val frame = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
+        texture = TextureView(this); overlay = Markers()
+        frame.addView(texture, FrameLayout.LayoutParams(-1,-1)); frame.addView(overlay, FrameLayout.LayoutParams(-1,-1))
+        root.addView(frame, LinearLayout.LayoutParams(-1, dp(360)))
         status = label("Buscando ubicación…")
         dataStatus = label("Esperando una ubicación válida para consultar")
         dataStatus.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
@@ -115,10 +117,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
             startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:$packageName")))
         }
         button("Volver") { finish() }
-        val frame = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
-        texture = TextureView(this); overlay = Markers()
-        frame.addView(texture, FrameLayout.LayoutParams(-1,-1)); frame.addView(overlay, FrameLayout.LayoutParams(-1,-1))
-        root.addView(frame, LinearLayout.LayoutParams(-1, dp(360)))
+        label("Se muestran hasta 20 incidencias autorizadas de esta instalación, ordenadas por cercanía. No se consultan otros dispositivos.")
         label("Lista de incidencias cercanas · mismos datos que los marcadores").applyGeoText(20f)
         list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(list, LinearLayout.LayoutParams(-1,-2))
@@ -282,20 +281,15 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
     private fun summary(id: String) {
         lifecycleScope.launch {
             try {
-                val (incident, canOpen) = withContext(Dispatchers.IO) { service.sharedDetail(id) to service.canReadPrivateDetail(id) }
+                val incident = withContext(Dispatchers.IO) { service.sharedDetail(id) }
                 if(!active) return@launch
                 val here = goodPosition() ?: run { dataStatus.text = "Ubicación no disponible; actualiza antes de abrir el detalle"; return@launch }
                 val d = GeoProjection.relative(here.latitude,here.longitude,incident.latitude,incident.longitude).distance
                 if(d > radius) { refresh(); return@launch }
                 val dialog = MaterialAlertDialogBuilder(this@NearbyActivity).setTitle(incident.category)
-                    .setMessage("${incident.description}\n\n${DateFormat.getDateTimeInstance().format(Date(incident.createdAt))}\n${state(incident.state)} · ${distance(d)}\n\n" +
+                    .setMessage("${incident.description}\n\nFecha: ${DateFormat.getDateTimeInstance().format(Date(incident.createdAt))}\nEstado actual: ${state(incident.state)} · ${distance(d)}\n\n" +
                         if(incident.locationConfirmed) "Punto confirmado en el mapa; dirección y distancia aproximadas." else "Ubicación aproximada: GPS del teléfono o registro histórico sin confirmación del punto del incidente.")
                     .setPositiveButton("Cerrar", null)
-                if(canOpen) dialog.setNeutralButton("Ver detalle privado autorizado") { _, _ ->
-                    startActivity(Intent(this@NearbyActivity, ReportsActivity::class.java).apply {
-                        putExtra("report", id); putExtra("admin", UserStore(this@NearbyActivity).sessionIdentity()?.second == Role.ADMINISTRADOR)
-                    })
-                }
                 dialog.show()
             } catch(e: CancellationException) { throw e }
             catch(e: Exception) { clearResults(); dataStatus.text = "No se puede abrir la incidencia: ${e.message}. Pulsa Actualizar / Reintentar." }
