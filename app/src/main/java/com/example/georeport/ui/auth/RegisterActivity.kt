@@ -2,7 +2,7 @@ package com.example.georeport.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import com.example.georeport.ui.common.showFeedback
 import androidx.appcompat.app.AppCompatActivity
 import com.example.georeport.ui.common.fitScreenContent
 import com.example.georeport.R
@@ -90,18 +90,9 @@ class RegisterActivity : AppCompatActivity() {
             }
             // Si los datos son válidos, guarda nombre, teléfono, sal y hash de contraseña.
             !userStore.register(fullName, email, phone, password) -> {
-                Toast.makeText(
-                    this,
-                    getString(R.string.msg_register_save_error),
-                    Toast.LENGTH_LONG
-                ).show()
+                binding.root.showFeedback(getString(R.string.msg_register_save_error))
             }
             else -> {
-                Toast.makeText(
-                    this,
-                    getString(R.string.msg_register_success),
-                    Toast.LENGTH_LONG
-                ).show()
 
                 // Devuelve el correo a Login para rellenarlo; registrar no inicia la sesión.
                 setResult(

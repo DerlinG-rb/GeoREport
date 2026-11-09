@@ -23,6 +23,9 @@ import com.example.georeport.domain.GeoProjection
 import com.example.georeport.ui.common.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.*
 import java.text.DateFormat
 import java.util.Date
@@ -84,32 +87,40 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
         }
         fun label(value: String) = TextView(this).apply { text = value; applyGeoText(); root.addView(this) }
         fun button(value: String, action: () -> Unit) = MaterialButton(this).apply {
-            applyGeoButton(); text = value; root.addView(this, LinearLayout.LayoutParams(-1,-2))
+            applyGeoSecondaryButton(); text = value; root.addView(this, LinearLayout.LayoutParams(-1,-2))
             setOnClickListener { action() }
         }
-        label("Ver incidencias cercanas en RA").applyGeoText(24f)
+        root.addView(MaterialToolbar(this).apply {
+            title = "Cerca de ti"
+            subtitle = "Incidencias en realidad aumentada"
+            setNavigationIcon(R.drawable.ic_arrow_back)
+            navigationContentDescription = "Volver"
+            setNavigationOnClickListener { finish() }
+        }, LinearLayout.LayoutParams(-1, -2))
         label("Apunta hacia tu entorno para consultar incidencias aprobadas. Toca un marcador para ver su descripción, fecha y estado.")
         label("La cámara no detecta problemas: muestra reportes registrados. Dirección y distancia aproximadas.")
         val frame = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
         texture = TextureView(this); overlay = Markers()
         frame.addView(texture, FrameLayout.LayoutParams(-1,-1)); frame.addView(overlay, FrameLayout.LayoutParams(-1,-1))
-        root.addView(frame, LinearLayout.LayoutParams(-1, dp(360)))
+        root.addView(frame, LinearLayout.LayoutParams(-1, dp(if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 240 else 320)))
         status = label("Buscando ubicación…")
         dataStatus = label("Esperando una ubicación válida para consultar")
         dataStatus.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         label("Radio de búsqueda")
         val distances = listOf(100,500,1000)
-        val selector = Spinner(this).apply {
-            contentDescription = "Radio de búsqueda en metros"; minimumHeight = dp(48)
-            adapter = ArrayAdapter(this@NearbyActivity, android.R.layout.simple_spinner_dropdown_item, distances.map { "$it metros" })
-            setSelection(distances.indexOf(radius)); root.addView(this)
+        val selector = ChipGroup(this).apply { isSingleSelection = true; isSelectionRequired = true }
+        distances.forEach { meters ->
+            selector.addView(Chip(this).apply {
+                id = View.generateViewId(); text = "$meters m"
+                contentDescription = "Buscar en un radio de $meters metros"
+                isCheckable = true; setEnsureMinTouchTargetSize(true)
+                isChecked = radius == meters
+                setOnCheckedChangeListener { _, checked ->
+                    if (checked && radius != meters) { radius = meters; clearResults(); refresh() }
+                }
+            })
         }
-        selector.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, index: Int, id: Long) {
-                if(radius != distances[index]) { radius = distances[index]; clearResults(); refresh() }
-            }
-        }
+        root.addView(selector)
         button("Actualizar / Reintentar") { startResources(); refresh() }
         button("Conceder permisos") { requestPermissions() }
         button("Ajustes de ubicación") { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
@@ -271,7 +282,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
         }
         visible.forEach { row ->
             list.addView(MaterialButton(this).apply {
-                applyGeoButton(); layoutParams = LinearLayout.LayoutParams(-1,-2)
+                applyGeoSecondaryButton(); layoutParams = LinearLayout.LayoutParams(-1,-2).apply { bottomMargin = dp(8) }
                 text = "${row.incident.category} · ${distance(row.position.distance)} · ${state(row.incident.state)}"
                 setIconResource(R.drawable.ic_location)
                 setOnClickListener { summary(row.incident.id) }

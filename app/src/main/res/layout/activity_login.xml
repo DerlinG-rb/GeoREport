@@ -59,8 +59,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/stroke_light"
             app:cardBackgroundColor="@color/surface_card">
@@ -126,7 +126,7 @@
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:passwordToggleEnabled="true"
+                    app:endIconMode="password_toggle"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:startIconTint="@color/text_secondary">
 
@@ -142,6 +142,10 @@
                 <!-- Forgot Password -->
                 <TextView
                     android:id="@+id/tvForgotPassword"
+                android:minHeight="48dp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -167,7 +171,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/primary_blue"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="16dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -178,7 +182,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:layout_marginBottom="16dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center">
 
             <TextView
@@ -190,6 +194,10 @@
 
             <TextView
                 android:id="@+id/tvGoToRegister"
+                android:minHeight="48dp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"

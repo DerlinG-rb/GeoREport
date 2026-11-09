@@ -64,8 +64,8 @@
             <!-- Logout / Exit Action -->
             <ImageButton
                 android:id="@+id/btnLogout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -91,16 +91,16 @@
             android:paddingTop="16dp"
             android:paddingBottom="36dp">
 
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnHistory" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mi historial y seguimiento" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnNearby" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver incidencias cercanas en RA" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnHistory" style="@style/Widget.GeoReport.Button.Tonal" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mi historial y seguimiento" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnNearby" style="@style/Widget.GeoReport.Button.Tonal" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver incidencias cercanas en RA" />
             <!-- Banner / Greeting Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/primary_blue"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
                 <LinearLayout
@@ -152,8 +152,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/stroke_light"
                 app:strokeWidth="1dp">
 
@@ -281,7 +281,7 @@
                             <!-- Upload File / Gallery -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnUploadFile"
-                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                     android:minHeight="52dp"
@@ -369,7 +369,7 @@
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnChangePhoto"
-                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                     android:minHeight="52dp"
@@ -414,8 +414,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/stroke_light"
                 app:strokeWidth="1dp">
 
@@ -577,7 +577,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="none"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
@@ -590,8 +590,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="@color/surface_card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/stroke_light"
                 app:strokeWidth="1dp">
 
@@ -752,7 +752,7 @@
                     <!-- Real GPS Location Action Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDetectLocation"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="52dp"
@@ -792,7 +792,7 @@
                             android:hint="@string/location_hint"
                             android:inputType="textPostalAddress"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Description Input -->
@@ -818,7 +818,7 @@
                             android:lines="3"
                             android:maxLines="5"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:textSize="16sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>

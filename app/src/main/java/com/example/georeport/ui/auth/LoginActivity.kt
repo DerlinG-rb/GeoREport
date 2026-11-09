@@ -2,7 +2,7 @@ package com.example.georeport.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import com.example.georeport.ui.common.showFeedback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.georeport.ui.common.fitScreenContent
@@ -21,6 +21,7 @@ class LoginActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
+            binding.root.showFeedback(R.string.msg_register_success)
             result.data?.getStringExtra(RegisterActivity.EXTRA_EMAIL)?.let { email ->
                 binding.etEmail.setText(email)
                 binding.etPassword.text?.clear()
@@ -55,11 +56,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.tvForgotPassword.setOnClickListener {
-            Toast.makeText(
-                this,
-                getString(R.string.msg_forgot_password_info),
-                Toast.LENGTH_SHORT
-            ).show()
+            binding.root.showFeedback(getString(R.string.msg_forgot_password_info))
         }
     }
 
@@ -93,11 +90,6 @@ class LoginActivity : AppCompatActivity() {
             }
             else -> {
                 userStore.saveSession(email)
-                Toast.makeText(
-                    this,
-                    getString(R.string.msg_login_success),
-                    Toast.LENGTH_SHORT
-                ).show()
                 openHome(email)
             }
         }

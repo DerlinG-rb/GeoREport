@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.doOnAttach
 import com.example.georeport.R
 
@@ -17,6 +18,11 @@ fun AppCompatActivity.fitScreenContent(root: View) {
         statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.DKGRAY),
         navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.DKGRAY)
     )
+    // The app intentionally keeps light surfaces in both system appearance modes.
+    WindowCompat.getInsetsController(window, root).apply {
+        isAppearanceLightStatusBars = true
+        isAppearanceLightNavigationBars = true
+    }
     val initialLeft = root.paddingLeft
     val initialTop = root.paddingTop
     val initialRight = root.paddingRight

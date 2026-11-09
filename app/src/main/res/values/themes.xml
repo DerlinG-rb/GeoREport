@@ -1,10 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- A single light palette prevents dark defaults on the application's light surfaces. -->
-    <style name="Theme.GeoREport" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.GeoREport" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/primary_blue</item>
+        <item name="colorSecondary">@color/primary_dark</item>
+        <item name="colorPrimaryContainer">@color/primary_light</item>
+        <item name="colorOnPrimaryContainer">@color/primary_dark</item>
+        <item name="colorSecondaryContainer">@color/primary_light</item>
+        <item name="colorOnSecondaryContainer">@color/primary_dark</item>
+        <item name="colorSurfaceVariant">@color/bg_light</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/text_secondary</item>
+        <item name="colorOutlineVariant">@color/stroke_light</item>
+        <item name="textInputStyle">@style/Widget.GeoReport.Input</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurface">@color/surface_card</item>
         <item name="colorOnSurface">@color/text_primary</item>

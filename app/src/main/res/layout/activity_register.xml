@@ -19,8 +19,8 @@
         <!-- Top Navigation Bar -->
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Volver"
             android:src="@drawable/ic_arrow_back"
@@ -52,8 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
             app:strokeColor="@color/stroke_light"
             app:cardBackgroundColor="@color/surface_card">
@@ -147,7 +147,7 @@
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:passwordToggleEnabled="true"
+                    app:endIconMode="password_toggle"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:startIconTint="@color/text_secondary">
 
@@ -172,7 +172,7 @@
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:passwordToggleEnabled="true"
+                    app:endIconMode="password_toggle"
                     app:startIconDrawable="@drawable/ic_lock"
                     app:startIconTint="@color/text_secondary">
 
@@ -198,7 +198,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/primary_blue"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="16dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -210,7 +210,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="16dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:gravity="center">
 
             <TextView
@@ -222,6 +222,10 @@
 
             <TextView
                 android:id="@+id/tvGoToLogin"
+                android:minHeight="48dp"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:focusable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"

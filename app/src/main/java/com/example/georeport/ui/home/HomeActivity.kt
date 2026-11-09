@@ -20,7 +20,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import com.example.georeport.ui.common.showFeedback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -116,11 +116,7 @@ class HomeActivity : AppCompatActivity() {
         if (isGranted) {
             launchCamera()
         } else {
-            Toast.makeText(
-                this,
-                getString(R.string.msg_camera_permission_required),
-                Toast.LENGTH_LONG
-            ).show()
+            binding.root.showFeedback(getString(R.string.msg_camera_permission_required))
         }
     }
 
@@ -134,11 +130,7 @@ class HomeActivity : AppCompatActivity() {
             enableUserLocationOverlay()
             fetchRealGpsLocation(centerMap = true)
         } else {
-            Toast.makeText(
-                this,
-                getString(R.string.gps_permission_required),
-                Toast.LENGTH_LONG
-            ).show()
+            binding.root.showFeedback(getString(R.string.gps_permission_required))
         }
     }
 
@@ -445,11 +437,6 @@ class HomeActivity : AppCompatActivity() {
                     if (centerMap) {
                         binding.mapView.controller.animateTo(geoPoint, 17.5, 1000L)
                     }
-                    Toast.makeText(
-                        this,
-                        getString(R.string.gps_status_acquired),
-                        Toast.LENGTH_SHORT
-                    ).show()
                 } else {
                     fallbackToLastLocation(centerMap, updateIncidentPoint)
                 }
@@ -504,7 +491,7 @@ class HomeActivity : AppCompatActivity() {
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val isGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
         if (!isGpsEnabled) {
-            Toast.makeText(this, getString(R.string.gps_disabled_prompt), Toast.LENGTH_LONG).show()
+            binding.root.showFeedback(getString(R.string.gps_disabled_prompt))
         }
     }
 
@@ -662,7 +649,7 @@ class HomeActivity : AppCompatActivity() {
             pickImageLauncher.launch("image/*")
         } catch (error: ActivityNotFoundException) {
             Log.e("HomeActivity", "No image picker available", error)
-            Toast.makeText(this, R.string.msg_picker_unavailable, Toast.LENGTH_LONG).show()
+            binding.root.showFeedback(R.string.msg_picker_unavailable)
         }
     }
 
@@ -693,11 +680,7 @@ class HomeActivity : AppCompatActivity() {
             deleteCameraFile(tempCameraPath)
             tempCameraPath = null
             tempCameraUri = null
-            Toast.makeText(
-                this,
-                getString(R.string.msg_camera_error),
-                Toast.LENGTH_LONG
-            ).show()
+            binding.root.showFeedback(getString(R.string.msg_camera_error))
         }
     }
 
@@ -742,7 +725,7 @@ class HomeActivity : AppCompatActivity() {
                 throw cancelled
             } catch (error: Exception) {
                 Log.e("HomeActivity", "Cannot import photo", error)
-                Toast.makeText(this@HomeActivity, R.string.msg_photo_load_error, Toast.LENGTH_LONG).show()
+                binding.root.showFeedback(R.string.msg_photo_load_error)
             } finally {
                 withContext(NonCancellable + Dispatchers.IO) {
                     if (!adopted) imported?.delete()
@@ -810,7 +793,7 @@ class HomeActivity : AppCompatActivity() {
         if (savingReport || photoJob?.isActive == true) return
         // 1. Validación de fotografía
         if (selectedImageUri == null || selectedPhotoPath == null) {
-            Toast.makeText(this, getString(R.string.msg_photo_required), Toast.LENGTH_LONG).show()
+            binding.root.showFeedback(getString(R.string.msg_photo_required))
             binding.homeScrollView.smoothScrollTo(0, binding.cardPhotoEvidence.top)
             return
         }
@@ -818,7 +801,7 @@ class HomeActivity : AppCompatActivity() {
         // 2. Validación de categoría
         val selectedCategory = binding.actvIncidentCategory.text?.toString()?.trim().orEmpty()
         if (selectedCategory.isEmpty()) {
-            Toast.makeText(this, getString(R.string.msg_category_required), Toast.LENGTH_LONG).show()
+            binding.root.showFeedback(getString(R.string.msg_category_required))
             binding.tilIncidentCategory.error = getString(R.string.msg_category_required)
             binding.homeScrollView.smoothScrollTo(0, binding.cardIncidentCategory.top)
             return
@@ -857,7 +840,7 @@ class HomeActivity : AppCompatActivity() {
                     photoStorage.resolve(report.photoPath) != null && reportStore.save(report)
                 }
                 if (!saved) {
-                    Toast.makeText(this@HomeActivity, R.string.msg_report_save_error, Toast.LENGTH_LONG).show()
+                    binding.root.showFeedback(R.string.msg_report_save_error)
                     return@launch
                 }
                 // Detach saved evidence immediately so repeated taps cannot submit it twice.
@@ -866,7 +849,7 @@ class HomeActivity : AppCompatActivity() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                Toast.makeText(this@HomeActivity, R.string.msg_report_save_error, Toast.LENGTH_LONG).show()
+                binding.root.showFeedback(R.string.msg_report_save_error)
             } finally {
                 savingReport = false
                 setStorageBusy(false)
@@ -950,7 +933,7 @@ class HomeActivity : AppCompatActivity() {
         binding.mapView.onDetach()
     }
 
-    companion object {
+    companion object cod {
         const val EXTRA_USER_EMAIL = "USER_EMAIL"
     }
 }
