@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="32dp">
 
@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="20dp">
 
                 <!-- Full Name Input -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -79,6 +79,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etFullName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -93,7 +94,7 @@
                     style="@style/Widget.GeoReport.Input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:hint="@string/email_label"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -103,6 +104,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etRegisterEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -117,7 +119,7 @@
                     style="@style/Widget.GeoReport.Input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:hint="@string/phone_label"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -127,6 +129,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -141,7 +144,7 @@
                     style="@style/Widget.GeoReport.Input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:hint="@string/password_label"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -152,6 +155,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etRegisterPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -166,7 +170,7 @@
                     style="@style/Widget.GeoReport.Input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:hint="@string/confirm_password_label"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -177,6 +181,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

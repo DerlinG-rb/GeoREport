@@ -13,6 +13,7 @@
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
         <item name="colorOutline">@color/text_secondary</item>
         <item name="colorOutlineVariant">@color/stroke_light</item>
+        <item name="editTextStyle">@style/Widget.GeoReport.EditText</item>
         <item name="textInputStyle">@style/Widget.GeoReport.Input</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurface">@color/surface_card</item>

@@ -14,7 +14,7 @@ fun TextView.applyGeoText(size: Float = 16f) {
     setTextColor(ContextCompat.getColor(context, R.color.text_primary))
     typeface = Typeface.create("sans-serif", if (size >= 20f) Typeface.BOLD else Typeface.NORMAL)
     setLineSpacing(context.dp(3).toFloat(), 1f)
-    setPadding(0, context.dp(8), 0, context.dp(8))
+    setPadding(0, context.dp(if (size >= 20f) 16 else 8), 0, context.dp(8))
 }
 
 fun MaterialButton.applyGeoButton() {

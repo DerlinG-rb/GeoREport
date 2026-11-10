@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="32dp"
         android:gravity="center_horizontal">
 
@@ -69,7 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/tvLoginTitle"
@@ -106,6 +106,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -120,7 +121,7 @@
                     style="@style/Widget.GeoReport.Input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="16dp"
                     android:hint="@string/password_label"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -131,6 +132,7 @@
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.GeoReport.EditText"
                         android:id="@+id/etPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

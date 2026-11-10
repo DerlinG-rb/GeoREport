@@ -36,15 +36,15 @@
     <string name="section_photo_subtitle">Toma una foto en el lugar o carga una imagen desde tu dispositivo</string>
     <string name="photo_prompt_title">Adjuntar Foto del Incidente</string>
     <string name="photo_prompt_desc">Toma una foto o selecciona una imagen de hasta 20 MiB</string>
-    <string name="btn_take_photo">Tomar Foto</string>
-    <string name="btn_upload_file">Cargar Archivo</string>
+    <string name="btn_take_photo">Tomar foto</string>
+    <string name="btn_upload_file">Galería</string>
     <string name="btn_change_photo">Cambiar Foto</string>
     <string name="btn_delete_photo">Quitar</string>
     <string name="photo_status_attached">Fotografía adjuntada con éxito</string>
 
     <string name="section_category_title">Tipo de Incidencia</string>
     <string name="section_category_subtitle">Clasifica el problema para dirigirlo al departamento adecuado</string>
-    <string name="category_dropdown_label">Selecciona el tipo de incidencia *</string>
+    <string name="category_dropdown_label">Tipo de incidencia *</string>
     <string name="category_pothole">Bache / Vía en mal estado</string>
     <string name="category_lighting">Falla de alumbrado público</string>
     <string name="category_garbage">Basura / Escombros acumulados</string>
@@ -64,10 +64,10 @@
 
     <string name="section_details_title">Detalles y Ubicación</string>
     <string name="section_details_subtitle">Visualiza el mapa en tiempo real o selecciona la ubicación del incidente</string>
-    <string name="description_label">Descripción de la incidencia (Opcional)</string>
+    <string name="description_label">Descripción (opcional)</string>
     <string name="description_hint">Detalla brevemente la situación o puntos de referencia</string>
-    <string name="location_label">Dirección o referencia del incidente</string>
-    <string name="location_hint">Dirección aproximada detectada en el mapa</string>
+    <string name="location_label">Dirección o referencia</string>
+    <string name="location_hint">Escribe una dirección o un punto de referencia</string>
     <string name="btn_get_location">Mi Ubicación GPS</string>
     <string name="btn_submit_report">Enviar Reporte de Incidencia</string>
 
@@ -115,4 +115,5 @@
     <string name="dialog_btn_logout">Cerrar sesión</string>
     <string name="msg_picker_unavailable">No hay una aplicación disponible para seleccionar imágenes.</string>
     <string name="osm_attribution">© OpenStreetMap contributors</string>
+    <string name="home_intro">Adjunta una foto, clasifica el problema y confirma su ubicación.</string>
 </resources>
