@@ -94,8 +94,34 @@ class ReportService internal constructor(private val users: UserStore, private v
         }
     }
     fun nearby(latitude: Double, longitude: Double, radius: Int): List<NearbyIncident> {
-        identity()
-        return NearbySource(store).nearby(latitude, longitude, radius)
+        val (email, _) = identity()
+        require(GeoProjection.validCoordinates(latitude, longitude)) { "Ubicación no válida" }
+        require(radius in listOf(100, 500, 1000)) { "Radio no válido" }
+        val shared = NearbySource(store).nearby(latitude, longitude, radius)
+        val own = ownApprovedIncidents(email).map {
+            NearbyIncident(it, GeoProjection.relative(latitude, longitude, it.latitude, it.longitude))
+        }.filter { it.position.distance <= radius }
+        return (own + shared).distinctBy { it.incident.id }
+            .sortedWith(compareBy<NearbyIncident> { it.position.distance }.thenBy { it.incident.id }).take(20)
+    }
+    private fun ownApprovedIncidents(email: String): List<PublicIncident> = store.getAll()
+        .filter { it.userEmail == email }
+        .mapNotNull { report ->
+            val state = tracking(report).state
+            val latitude = report.latitude ?: return@mapNotNull null
+            val longitude = report.longitude ?: return@mapNotNull null
+            if (state !in listOf(ReportState.APROBADO, ReportState.CANALIZADO) ||
+                !GeoProjection.validCoordinates(latitude, longitude)) return@mapNotNull null
+            PublicIncident(report.id, report.category, latitude, longitude, state.name,
+                report.description.ifBlank { "Sin descripción adicional." }, report.createdAt,
+                report.locationConfirmed, isOwn = true)
+        }
+
+    /** Recheck ownership and approval when opening a nearby marker. */
+    fun nearbyDetail(id: String): PublicIncident {
+        val (email, _) = identity()
+        return ownApprovedIncidents(email).firstOrNull { it.id == id }
+            ?: NearbySource(store).detail(id)
     }
     fun sharedDetail(id: String): PublicIncident {
         identity()

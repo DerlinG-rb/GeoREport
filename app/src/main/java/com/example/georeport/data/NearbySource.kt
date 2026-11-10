@@ -2,10 +2,11 @@ package com.example.georeport.data
 
 import com.example.georeport.domain.GeoProjection
 
-/** Public projection only. Never includes a private description, owner or photograph. */
+/** Public summary, or an owner's summary authorized by ReportService. No owner identity or photo. */
 data class PublicIncident(
     val id: String, val category: String, val latitude: Double, val longitude: Double,
-    val state: String, val description: String, val createdAt: Long, val locationConfirmed: Boolean
+    val state: String, val description: String, val createdAt: Long, val locationConfirmed: Boolean,
+    val isOwn: Boolean = false
 )
 data class NearbyIncident(val incident: PublicIncident, val position: GeoProjection.Position)
 data class SharedVisibility(val enabled: Boolean, val description: String)

@@ -37,6 +37,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
     private lateinit var locations: LocationManager
     private lateinit var texture: TextureView
     private lateinit var overlay: Markers
+    private lateinit var permissionButton: MaterialButton
     private lateinit var status: TextView
     private lateinit var dataStatus: TextView
     private lateinit var list: LinearLayout
@@ -80,60 +81,61 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
         permissionRequested = savedInstanceState?.getBoolean("permissions", false) ?: false
         sensors = getSystemService(SENSOR_SERVICE) as SensorManager
         locations = getSystemService(LOCATION_SERVICE) as LocationManager
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundColor(ContextCompat.getColor(this@NearbyActivity, R.color.bg_light))
-            setPadding(dp(24), dp(16), dp(24), dp(16))
-        }
-        fun label(value: String) = TextView(this).apply { text = value; applyGeoText(); root.addView(this) }
-        fun button(value: String, action: () -> Unit) = MaterialButton(this).apply {
-            applyGeoSecondaryButton(); text = value; root.addView(this, LinearLayout.LayoutParams(-1,-2))
-            setOnClickListener { action() }
-        }
-        root.addView(MaterialToolbar(this).apply {
-            title = "Cerca de ti"
-            subtitle = "Incidencias en realidad aumentada"
-            setNavigationIcon(R.drawable.ic_arrow_back)
-            navigationContentDescription = "Volver"
+        setContentView(R.layout.activity_nearby)
+        fitScreenContent(findViewById<ViewGroup>(android.R.id.content).getChildAt(0))
+        status = findViewById(R.id.nearbyStatus)
+        dataStatus = findViewById(R.id.nearbyDataStatus)
+        list = findViewById(R.id.nearbyResults)
+        permissionButton = findViewById(R.id.nearbyPermission)
+        permissionButton.setOnClickListener { requestPermissions() }
+        findViewById<MaterialToolbar>(R.id.nearbyToolbar).apply {
             setNavigationOnClickListener { finish() }
-        }, LinearLayout.LayoutParams(-1, -2))
-        label("Apunta hacia tu entorno para consultar incidencias aprobadas. Toca un marcador para ver su descripción, fecha y estado.")
-        label("La cámara no detecta problemas: muestra reportes registrados. Dirección y distancia aproximadas.")
-        val frame = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
-        texture = TextureView(this); overlay = Markers()
-        frame.addView(texture, FrameLayout.LayoutParams(-1,-1)); frame.addView(overlay, FrameLayout.LayoutParams(-1,-1))
-        root.addView(frame, LinearLayout.LayoutParams(-1, dp(if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 240 else 320)))
-        status = label("Buscando ubicación…")
-        dataStatus = label("Esperando una ubicación válida para consultar")
-        dataStatus.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
-        label("Radio de búsqueda")
-        val distances = listOf(100,500,1000)
-        val selector = ChipGroup(this).apply { isSingleSelection = true; isSelectionRequired = true }
-        distances.forEach { meters ->
+            menu.add(0, 1, 0, "Actualizar").setIcon(R.drawable.ic_refresh)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+            menu.add(0, 2, 1, "Ajustes de ubicación")
+            menu.add(0, 3, 2, "Permisos de la aplicación")
+            menu.add(0, 4, 3, "Acerca de esta vista")
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> { startResources(); refresh() }
+                    2 -> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                    3 -> startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:$packageName")))
+                    4 -> MaterialAlertDialogBuilder(this@NearbyActivity)
+                        .setTitle("Realidad aumentada")
+                        .setMessage("Aquí aparecen tus reportes aprobados o canalizados y las incidencias de otras cuentas autorizadas para compartir. La cámara no reconoce la foto ni detecta problemas: sitúa los reportes según su ubicación. Se muestran hasta 20 resultados de esta instalación dentro del radio elegido. Dirección y distancia aproximadas. No hay sincronización entre teléfonos.")
+                        .setPositiveButton("Entendido", null).show()
+                    else -> return@setOnMenuItemClickListener false
+                }
+                true
+            }
+        }
+        val frame = findViewById<FrameLayout>(R.id.nearbyPreview)
+        texture = TextureView(this)
+        overlay = Markers()
+        frame.addView(texture, FrameLayout.LayoutParams(-1, -1))
+        frame.addView(overlay, FrameLayout.LayoutParams(-1, -1))
+        frame.addView(TextView(this).apply {
+            id = R.id.nearbyPreviewMessage
+            text = "Preparando cámara…"
+            textSize = 16f
+            gravity = Gravity.CENTER
+            setTextColor(Color.WHITE)
+            setPadding(dp(24), dp(24), dp(24), dp(24))
+        }, FrameLayout.LayoutParams(-1, -1))
+        val selector = findViewById<ChipGroup>(R.id.nearbyRadius)
+        listOf(100, 500, 1000).forEach { meters ->
             selector.addView(Chip(this).apply {
-                id = View.generateViewId(); text = "$meters m"
+                id = View.generateViewId()
+                text = if (meters == 1000) "1 km" else "$meters m"
                 contentDescription = "Buscar en un radio de $meters metros"
-                isCheckable = true; setEnsureMinTouchTargetSize(true)
+                isCheckable = true
+                setEnsureMinTouchTargetSize(true)
                 isChecked = radius == meters
                 setOnCheckedChangeListener { _, checked ->
                     if (checked && radius != meters) { radius = meters; clearResults(); refresh() }
                 }
             })
         }
-        root.addView(selector)
-        button("Actualizar / Reintentar") { startResources(); refresh() }
-        button("Conceder permisos") { requestPermissions() }
-        button("Ajustes de ubicación") { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
-        button("Ajustes de permisos de la aplicación") {
-            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:$packageName")))
-        }
-        button("Volver") { finish() }
-        label("Se muestran hasta 20 incidencias autorizadas de esta instalación, ordenadas por cercanía. No se consultan otros dispositivos.")
-        label("Lista de incidencias cercanas · mismos datos que los marcadores").applyGeoText(20f)
-        list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        root.addView(list, LinearLayout.LayoutParams(-1,-2))
-        val scroll = ScrollView(this).apply { setBackgroundColor(ContextCompat.getColor(this@NearbyActivity, R.color.bg_light)); addView(root) }
-        setContentView(scroll); fitScreenContent(scroll)
         texture.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) { if(active) openCamera() }
             override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) { transformPreview() }
@@ -188,7 +190,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
                 runCatching {
                     locations.requestLocationUpdates(provider, 1500L, 2f, this)
                     locations.getLastKnownLocation(provider)?.let { onLocationChanged(it) }
-                }.onFailure { locationMessage = "No se pudo obtener la ubicación. Pulsa Actualizar / Reintentar." }
+                }.onFailure { locationMessage = "No se pudo obtener la ubicación. Pulsa Actualizar." }
             }
         } else { position = null; locationMessage = "Permiso de ubicación denegado. Concédelo para buscar incidencias reales cercanas." }
         if(granted(Manifest.permission.CAMERA)) { if(texture.isAvailable) openCamera() }
@@ -218,6 +220,17 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
             (SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos) in 0..60_000_000_000L
     }
     private fun updateStatus() {
+        if (lastDisplayRotation != rotation()) {
+            lastDisplayRotation = rotation()
+            transformPreview()
+        }
+        val needsPermission = !granted(Manifest.permission.CAMERA) ||
+            (!granted(Manifest.permission.ACCESS_FINE_LOCATION) && !granted(Manifest.permission.ACCESS_COARSE_LOCATION))
+        permissionButton.visibility = if (needsPermission) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.nearbyPreviewMessage).apply {
+            visibility = if (previewReady) View.GONE else View.VISIBLE
+            text = cameraMessage
+        }
         val here = goodPosition()
         status.text = listOfNotNull(
             locationMessage ?: when {
@@ -262,7 +275,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
                 if(version != queryGeneration) return@launch
                 rows = emptyList(); updatedLabel = null; list.removeAllViews(); overlay.invalidate()
                 queriedAt = SystemClock.elapsedRealtime()
-                dataStatus.text = "Error al consultar incidencias: ${e.message ?: "almacenamiento no disponible"}. Pulsa Actualizar / Reintentar."
+                dataStatus.text = "Error al consultar incidencias: ${e.message ?: "almacenamiento no disponible"}. Pulsa Actualizar."
             }
         }
     }
@@ -277,13 +290,15 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
         list.removeAllViews()
         val visible = visibleRows()
         updatedLabel?.let { at ->
-            dataStatus.text = if(visible.isEmpty()) "No hay incidencias disponibles cerca de tu ubicación"
-                else "${visible.size} incidencias · consulta local actualizada: $at"
+            dataStatus.text = if(visible.isEmpty()) "No hay incidencias dentro de $radius m. Tus reportes deben estar aprobados y tener ubicación. Prueba ampliar el radio o revisa Mi historial."
+                else "${visible.size} incidencias · ${visible.count { it.incident.isOwn }} tuyas · actualizado: $at"
         }
         visible.forEach { row ->
             list.addView(MaterialButton(this).apply {
                 applyGeoSecondaryButton(); layoutParams = LinearLayout.LayoutParams(-1,-2).apply { bottomMargin = dp(8) }
-                text = "${row.incident.category} · ${distance(row.position.distance)} · ${state(row.incident.state)}"
+                text = "${row.incident.category}\n${distance(row.position.distance)} · ${state(row.incident.state)}" +
+                    if (row.incident.isOwn) " · Tu reporte" else " · Compartida"
+                gravity = Gravity.START or Gravity.CENTER_VERTICAL
                 setIconResource(R.drawable.ic_location)
                 setOnClickListener { summary(row.incident.id) }
             })
@@ -292,7 +307,7 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
     private fun summary(id: String) {
         lifecycleScope.launch {
             try {
-                val incident = withContext(Dispatchers.IO) { service.sharedDetail(id) }
+                val incident = withContext(Dispatchers.IO) { service.nearbyDetail(id) }
                 if(!active) return@launch
                 val here = goodPosition() ?: run { dataStatus.text = "Ubicación no disponible; actualiza antes de abrir el detalle"; return@launch }
                 val d = GeoProjection.relative(here.latitude,here.longitude,incident.latitude,incident.longitude).distance
@@ -303,28 +318,31 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
                     .setPositiveButton("Cerrar", null)
                 dialog.show()
             } catch(e: CancellationException) { throw e }
-            catch(e: Exception) { clearResults(); dataStatus.text = "No se puede abrir la incidencia: ${e.message}. Pulsa Actualizar / Reintentar." }
+            catch(e: Exception) { clearResults(); dataStatus.text = "No se puede abrir la incidencia: ${e.message}. Pulsa Actualizar." }
         }
     }
     override fun onSensorChanged(event: SensorEvent) {
         if(!active) return
         if(lastDisplayRotation != rotation()) { lastDisplayRotation = rotation(); transformPreview() }
         reliable = event.accuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+        val elapsed = if (orientationAt == 0L) 0.0 else (event.timestamp - orientationAt) / 1_000_000_000.0
         orientationAt = event.timestamp
-        if(!reliable) { overlay.invalidate(); return }
+        if(!reliable) { quaternion = null; overlay.invalidate(); return }
         val next = FloatArray(4)
         SensorManager.getQuaternionFromVector(next, event.values)
         val last = quaternion
-        if(last == null) quaternion = next else {
+        if(last == null || elapsed <= 0 || elapsed > .5) quaternion = next else {
             val sign = if(last.indices.sumOf { (last[it]*next[it]).toDouble() } < 0) -1 else 1
-            for(i in last.indices) last[i] = last[i] * .82f + next[i] * sign * .18f
+            // Same response time across devices with different sensor rates.
+            val blend = (1.0 - exp(-elapsed / .08)).toFloat()
+            for(i in last.indices) last[i] = last[i] * (1f - blend) + next[i] * sign * blend
             val norm = sqrt(last.sumOf { (it*it).toDouble() }).toFloat()
             if(norm <= 0 || !norm.isFinite()) { reliable = false; return }
             for(i in last.indices) last[i] /= norm
         }
         val q = quaternion!!
         SensorManager.getRotationMatrixFromVector(matrix, floatArrayOf(q[1],q[2],q[3],q[0]))
-        overlay.invalidate() // No database or network access on sensor events.
+        overlay.postInvalidateOnAnimation() // Draw on the display cadence, without I/O.
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { reliable = accuracy >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM }
     @SuppressLint("MissingPermission")
@@ -402,16 +420,25 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
     private fun rotation() = windowManager.defaultDisplay.rotation
     private fun transformPreview() {
         if(texture.width == 0 || texture.height == 0) return
-        val degrees = (sensorOrientation - rotation()*90 + 360)%360
-        val swapped = degrees == 90 || degrees == 270
-        val bufferW = if(swapped) previewHeight.toFloat() else previewWidth.toFloat()
-        val bufferH = if(swapped) previewWidth.toFloat() else previewHeight.toFloat()
+        // TextureView already applies SENSOR_ORIENTATION. Undo its stretch in
+        // natural device orientation, then compensate only for display rotation.
+        val naturalSwap = sensorOrientation % 180 != 0
+        val naturalW = if (naturalSwap) previewHeight.toFloat() else previewWidth.toFloat()
+        val naturalH = if (naturalSwap) previewWidth.toFloat() else previewHeight.toFloat()
+        val (bufferW, bufferH) = orientedPreviewSize()
         val scale = max(texture.width / bufferW, texture.height / bufferH)
+        val cx = texture.width / 2f
+        val cy = texture.height / 2f
         val transform = Matrix()
-        transform.setScale(previewWidth.toFloat()/texture.width, previewHeight.toFloat()/texture.height, texture.width/2f, texture.height/2f)
-        transform.postRotate(degrees.toFloat(), texture.width/2f, texture.height/2f)
-        transform.postScale(scale,scale,texture.width/2f,texture.height/2f)
+        transform.setScale(naturalW / texture.width, naturalH / texture.height, cx, cy)
+        transform.postRotate(-rotation() * 90f, cx, cy)
+        transform.postScale(scale, scale, cx, cy)
         texture.setTransform(transform)
+    }
+    private fun orientedPreviewSize(): Pair<Float, Float> {
+        val swapped = (sensorOrientation - rotation() * 90 + 360) % 180 != 0
+        return if (swapped) previewHeight.toFloat() to previewWidth.toFloat()
+        else previewWidth.toFloat() to previewHeight.toFloat()
     }
     private fun closeCamera() {
         generation++; session?.close(); session = null; camera?.close(); camera = null; opening = false; previewReady = false
@@ -436,8 +463,9 @@ class NearbyActivity : AppCompatActivity(), SensorEventListener, LocationListene
             val boxHeight = max(72*density, 3*line + 16*density)
             val half = min(150*density, width/2f)
             val swapped = ((sensorOrientation - rotation()*90 + 360)%360) % 180 != 0
-            val bufferW = if(swapped) previewHeight.toDouble() else previewWidth.toDouble()
-            val bufferH = if(swapped) previewWidth.toDouble() else previewHeight.toDouble()
+            val (orientedW, orientedH) = orientedPreviewSize()
+            val bufferW = orientedW.toDouble()
+            val bufferH = orientedH.toDouble()
             val scale = max(width/bufferW, height/bufferH)
             val fx = (if(swapped) focalY else focalX) * bufferW * scale / width
             val fy = (if(swapped) focalX else focalY) * bufferH * scale / height

@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="nearby_preview_height">220dp</dimen>
+</resources>
